@@ -1,0 +1,49 @@
+
+fgco|Interactive branch checkout
+fgbb|Browse and switch to all branches (including remote)
+fgcb|Checkout remote branch (creates tracking branch)
+fgrm|Interactive local branch deletion
+fgtag|Checkout tags
+fgcm|Copy recent commit hash
+fgcf|Browse and edit git repository files
+fgst|Show and edit modified files (git status)
+fgroot|Jump to git root directory
+fgshow|Interactive commit details and diff viewer
+fgreset|Interactive reset to specific commit
+fgcherry|Interactive cherry-pick commits
+fgstash|Interactive stash management (Ctrl+D to delete)
+fgremote|Interactive remote repository information
+fgfetch|Selective fetch from remote branches
+fgpull|Select branch for pull operations
+fglog|Interactive file git history viewer
+fgblame|Select file for blame information
+ff|Find and open files
+fcd|Fuzzy find and enter subdirectories
+fcode|Search in code files (supports multiple programming languages)
+frecent|Find recently accessed files
+fsize|Filter and find files by size
+fext|Filter by file extensions
+fmkdir|Create directory and enter
+fcp|Interactive file copy to directory
+fmv|Interactive file move
+fkill|Interactive process termination
+fport|Find and manage processes using specific ports
+ftop|Interactive system resource monitoring (sorted by CPU)
+fss|SSH connection management (based on ~/.ssh/config)
+fhost|Edit hosts file entries
+fh|Copy commands from history
+fzjump|Jump to known directories (requires zoxide)
+fenv|Interactive environment variable viewing and copying
+fpath|Manage PATH variable entries
+fconfig|Quick edit common configuration files
+fdotfile|Manage dotfiles
+fpkg|Interactive package management (Ctrl+U uninstall)
+fnode|Node.js global package management
+flint|Interactive code linting tools (supports Python, JavaScript, TypeScript)
+fmd|Preview and edit Markdown files
+fpdf|Find and open PDF files
+fimg|Image file management and viewing
+fvideo|Video file management
+flog|Interactive system log file viewer
+flist|List all registered fzf-enhance commands
+fupdate|Update fzf-enhance plugin from git repository

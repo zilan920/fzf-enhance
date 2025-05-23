@@ -16,7 +16,7 @@ fi
 FZF_ENHANCE_COMMANDS_FILE="$FZF_ENHANCE_PLUGIN_DIR/.fzf_enhance_commands"
 
 # Initialize commands file (clear existing content)
-> "$FZF_ENHANCE_COMMANDS_FILE"
+echo "" > "$FZF_ENHANCE_COMMANDS_FILE"
 
 # Check if a command exists
 check_command() {
@@ -93,7 +93,7 @@ list_fzf_commands() {
     # Skip empty lines and lines without proper format
     [[ -z "$cmd_name" || -z "$cmd_desc" ]] && continue
     formatted_commands+=("$(printf "%-12s %s" "$cmd_name" "$cmd_desc")")
-  done < <(grep -v '^$' "$FZF_ENHANCE_COMMANDS_FILE")
+  done < "$FZF_ENHANCE_COMMANDS_FILE"
   
   # Check if we have any commands
   if [[ ${#formatted_commands[@]} -eq 0 ]]; then
