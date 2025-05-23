@@ -3,7 +3,7 @@
 
 register_fzf_alias() {
   local base="$1"
-  local command="$2"
+  local raw_command="$2"
   local name
 
   if [[ "$FZF_ENHANCE_OVERRIDE" == "1" ]]; then
@@ -12,14 +12,19 @@ register_fzf_alias() {
     name="f$base"
   fi
 
-  # Skip if the alias or command already exists
+  # skip if alias or system command already exists
   if alias "$name" &>/dev/null || command -v "$name" &>/dev/null; then
-    echo "⚠️ Skipping alias '$name': already defined as alias or command"
+    echo "⚠️ Skipping alias '$name': already defined"
     return
   fi
 
+  # Escape all { } inside command
+  local command="${raw_command//\{/\{\\{}"
+  command="${command//\}/\\}\}"
+
   eval "alias ${name}=\"${command}\""
 }
+
 
 # === 🟦 Git commands ===
 
