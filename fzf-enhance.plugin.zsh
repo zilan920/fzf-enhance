@@ -405,6 +405,8 @@ _fzf_enhance_update() {
       fi
     fi
   fi
+
+  cd -
   
   echo "✅ Plugin updated successfully!"
   echo "💡 Please restart your shell or run: source ~/.zshrc"
