@@ -12,18 +12,19 @@ register_fzf_alias() {
     name="f$base"
   fi
 
-  # skip if alias or system command already exists
+  # 如果 alias 或系统命令已存在，跳过
   if alias "$name" &>/dev/null || command -v "$name" &>/dev/null; then
     echo "⚠️ Skipping alias '$name': already defined"
     return
   fi
 
-  # Escape all { } inside command
-  local command="${raw_command//\{/\{\\{}"
-  command="${command//\}/\\}\}"
+  # 将命令中的双引号变为 '\''，用于单引号包裹的 eval
+  local escaped_command=${raw_command//\"/\'\"\'\"\'}
 
-  eval "alias ${name}=\"${command}\""
+  # 构造完整 eval 命令：alias name='escaped_command'
+  eval "alias ${name}='$escaped_command'"
 }
+
 
 
 # === 🟦 Git commands ===
