@@ -29,11 +29,10 @@
 - `zf`: Jump to known dirs (`zoxide`)
 - `dict`: Lookup clipboard words (`dictd`)
 
-## ⚙️ Optional: override existing OMZ aliases
+## 🧠 How command names are defined
 
-By default, aliases like `gco` become `gco_` if already defined.  
-To override existing ones:
-
-```zsh
-export FZF_ENHANCE_OVERRIDE=1
+- By default, all commands are prefixed with `f` (e.g. `fgco`, `fgst`, `fkill`) to avoid alias conflict.
+- To override existing commands (like `gco`, `gst`), set this in your `.zshrc`:
+  ```zsh
+  export FZF_ENHANCE_OVERRIDE=1
 

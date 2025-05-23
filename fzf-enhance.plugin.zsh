@@ -1,15 +1,19 @@
 # === Plugin: fzf-enhance ===
 # Smart alias registration (supports optional override)
 
+# 自动注册 fzf-enhance 的 alias，按需加 "f" 前缀，或覆盖原 alias
 register_fzf_alias() {
-  local name="$1"
+  local base="$1"
   local command="$2"
+  local name
 
-  if [[ "$FZF_ENHANCE_OVERRIDE" == "1" || -z "$(alias "$name" 2>/dev/null)" ]]; then
-    alias "$name"="$command"
+  if [[ "$FZF_ENHANCE_OVERRIDE" == "1" ]]; then
+    name="$base"
   else
-    alias "${name}_"="$command"
+    name="f$base"
   fi
+
+  alias "$name"="$command"
 }
 
 # === 🟦 Git aliases ===
