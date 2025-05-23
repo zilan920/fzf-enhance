@@ -187,30 +187,30 @@ else
 fi
 
 # === 🟩 File navigation ===
-register_fzf_alias f    "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_FILE_LIMIT | fzf --preview 'bat --style=numbers --color=always {}' --bind 'enter:execute(nvim {})+abort'" false "Find and open files (optimized with depth limit and exclusions)"
+register_fzf_alias f    'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_FILE_LIMIT' | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files (optimized with depth limit and exclusions)"
 
 if check_command fd; then
-  register_fzf_alias cd   "fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_DIR_LIMIT | fzf --prompt='CD into dir > ' --bind 'enter:execute(cd {})+abort'" true "Fuzzy find and enter subdirectories (optimized)"
+  register_fzf_alias cd   'fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_DIR_LIMIT' | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' true "Fuzzy find and enter subdirectories (optimized)"
   
   # Deep search alternatives for when you need full search
-  register_fzf_alias fdeep "fd --type f \$(_build_exclude_params) | fzf --preview 'bat --style=numbers --color=always {}' --bind 'enter:execute(nvim {})+abort'" false "Deep file search (no depth limit)"
-  register_fzf_alias cddeep "fd --type d \$(_build_exclude_params) | fzf --prompt='CD into dir > ' --bind 'enter:execute(cd {})+abort'" false "Deep directory search (no depth limit)"
+  register_fzf_alias fdeep 'fd --type f $(_build_exclude_params) | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (no depth limit)"
+  register_fzf_alias cddeep 'fd --type d $(_build_exclude_params) | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' false "Deep directory search (no depth limit)"
   
-  register_fzf_alias code "fd --type f --max-depth $((FZF_ENHANCE_FILE_DEPTH + 1)) \$(_build_exclude_params) \\( -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.go' -o -name '*.rs' -o -name '*.java' -o -name '*.c' -o -name '*.cpp' -o -name '*.h' \\) | head -$((FZF_ENHANCE_FILE_LIMIT * 80 / 100)) | fzf --preview 'bat --style=numbers --color=always {}' --prompt='Search in code > ' --bind 'enter:execute(nvim {})+abort'" false "Search in code files (optimized)"
+  register_fzf_alias code 'fd --type f --max-depth '$((FZF_ENHANCE_FILE_DEPTH + 1))' $(_build_exclude_params) \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | head -'$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))' | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (optimized)"
   
-  register_fzf_alias recent "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) --print0 | xargs -0 ls -lt | head -50 | awk '{print \$NF}' | fzf --preview 'bat --style=numbers --color=always {}' --prompt='Recent files > ' --bind 'enter:execute(nvim {})+abort'" false "Find recently accessed files (optimized)"
+  register_fzf_alias recent 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) --print0 | xargs -0 ls -lt | head -50 | awk "{print \$NF}" | fzf --preview "bat --style=numbers --color=always {}" --prompt="Recent files > " --bind "enter:execute(nvim {})+abort"' false "Find recently accessed files (optimized)"
   
-  register_fzf_alias size "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | xargs ls -lah | sort -k5 -h | fzf --preview 'bat --style=numbers --color=always {9}' --prompt='Files by size > ' --bind 'enter:execute(nvim {9})+abort'" false "Filter and find files by size (optimized)"
+  register_fzf_alias size 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | xargs ls -lah | sort -k5 -h | fzf --preview "bat --style=numbers --color=always {9}" --prompt="Files by size > " --bind "enter:execute(nvim {9})+abort"' false "Filter and find files by size (optimized)"
   
-  register_fzf_alias ext "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_FILE_LIMIT | grep -E '\\.[^.]+\$' | sed 's/.*\\.//' | sort | uniq -c | sort -nr | fzf --prompt='Select extension > ' | awk '{print \$2}' | xargs -I {} fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH --extension {} \$(_build_exclude_params)" false "Filter by file extensions (optimized)"
+  register_fzf_alias ext 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_FILE_LIMIT' | grep -E "\.[^.]+$" | sed "s/.*\.//" | sort | uniq -c | sort -nr | fzf --prompt="Select extension > " | awk "{print \$2}" | xargs -I {} fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --extension {} $(_build_exclude_params)' false "Filter by file extensions (optimized)"
   
   register_fzf_alias mkdir 'echo -n "New directory name: " && read dirname && mkdir -p "$dirname" && cd "$dirname"' true "Create directory and enter"
   
   # Optimized file copy function
-  register_fzf_alias cp "file=\$(fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | fzf --prompt='Copy file > ') && [[ -n \"\$file\" ]] && dir=\$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_DIR_LIMIT / 2)) | fzf --prompt='To directory > ') && [[ -n \"\$dir\" ]] && cp \"\$file\" \"\$dir\" && echo \"Copied \$file to \$dir\"" true "Interactive file copy to directory (optimized)"
+  register_fzf_alias cp 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Copy file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && cp "$file" "$dir" && echo "Copied $file to $dir"' true "Interactive file copy to directory (optimized)"
   
   # Optimized file move function  
-  register_fzf_alias mv "file=\$(fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | fzf --prompt='Move file > ') && [[ -n \"\$file\" ]] && dir=\$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_DIR_LIMIT / 2)) | fzf --prompt='To directory > ') && [[ -n \"\$dir\" ]] && mv \"\$file\" \"\$dir\" && echo \"Moved \$file to \$dir\"" true "Interactive file move (optimized)"
+  register_fzf_alias mv 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Move file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && mv "$file" "$dir" && echo "Moved $file to $dir"' true "Interactive file move (optimized)"
 else
   echo "⚠️ fzf-enhance: fd not found. Enhanced file navigation disabled."
 fi
