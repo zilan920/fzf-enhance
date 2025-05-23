@@ -46,7 +46,17 @@ _fzf_select() {
   local limit_var="$7"      # limit variable name (FZF_ENHANCE_FILE_LIMIT or FZF_ENHANCE_DIR_LIMIT)
   
   local fd_cmd=$(_build_fd_command "$type" "$depth" "$extra_fd_args")
-  local limit=${!limit_var}
+  
+  # Get limit value based on variable name
+  local limit
+  if [[ "$limit_var" == "FZF_ENHANCE_FILE_LIMIT" ]]; then
+    limit=$FZF_ENHANCE_FILE_LIMIT
+  elif [[ "$limit_var" == "FZF_ENHANCE_DIR_LIMIT" ]]; then
+    limit=$FZF_ENHANCE_DIR_LIMIT
+  else
+    # Fallback to a safe default
+    limit=1000
+  fi
   
   local fzf_cmd="$fd_cmd | head -$limit | fzf --prompt=\"$prompt\""
   
