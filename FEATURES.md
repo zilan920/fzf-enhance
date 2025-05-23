@@ -2,7 +2,7 @@
 
 ## 📊 Overview
 
-This plugin provides **44 enhanced commands** for command line users, covering 6 major functional categories, significantly improving the efficiency of Git, file management, system management, and development workflows.
+This plugin provides **45 enhanced commands** for command line users, covering 6 major functional categories, significantly improving the efficiency of Git, file management, system management, and development workflows.
 
 ---
 
@@ -133,6 +133,14 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 
 ---
 
+## 🆕 Plugin Management (1 command)
+
+### Command Discovery
+
+- `flist` / `fflist`: Interactive list of all registered commands with descriptions
+
+---
+
 ## 🎯 Keyboard Shortcut Support
 
 Many commands support additional keyboard shortcuts to improve efficiency:
@@ -141,6 +149,7 @@ Many commands support additional keyboard shortcuts to improve efficiency:
 - **System Services**: `Ctrl+R` restart, `Ctrl+S` stop
 - **Docker**: `Ctrl+S` start, `Ctrl+P` stop, `Ctrl+R` restart
 - **Package Management**: `Ctrl+U` uninstall package
+- **Command Browser**: `Enter` copy command name to clipboard
 
 ---
 

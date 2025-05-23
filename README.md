@@ -119,6 +119,12 @@
 - `img` / `fimg`: Image file management and viewing
 - `video` / `fvideo`: Video file management
 
+### 🆕 Plugin Management
+
+**Command Discovery**
+
+- `list` / `flist`: Interactive list of all registered commands with descriptions
+
 ## 📦 Dependencies
 
 Install the following dependencies for the best experience:
@@ -312,6 +318,16 @@ fenv
 
 # Package management
 pkg  # or fpkg (Ctrl+U uninstall)
+```
+
+### Plugin Management
+
+```bash
+# List all available commands
+list  # or flist
+
+# Browse commands interactively with descriptions
+# Press Enter to copy command name to clipboard
 ```
 
 ## 🎯 Keyboard Shortcuts

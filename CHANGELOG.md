@@ -1,5 +1,32 @@
 # fzf-enhance Changelog
 
+## v2.1.0 - 2024-01-XX - Command Discovery Feature
+
+### 🆕 New Features
+
+- **Added command listing utility**: New `list`/`flist` command to interactively browse all registered commands
+  - Displays all registered commands with descriptions
+  - Interactive fzf interface with command preview
+  - Copy command names to clipboard with Enter key
+  - Collects command information during registration phase
+  - Enhanced `register_fzf_alias` function to track command descriptions
+
+### 🔧 Technical Improvements
+
+- Enhanced `register_fzf_alias` function with command description parameter
+- Added global `FZF_ENHANCE_COMMANDS` array to track registered commands
+- Added `list_fzf_commands` function for interactive command browsing
+- Total commands increased from 44 to 45
+
+### 📚 Documentation Updates
+
+- Updated README.md with new Plugin Management section
+- Updated FEATURES.md with command discovery functionality
+- Updated readme_cn.md with Chinese documentation for new feature
+- Added usage examples for the new command listing feature
+
+---
+
 ## v2.0.0 - 2024-01-XX - Major Update
 
 ### 🔧 Major Fixes
