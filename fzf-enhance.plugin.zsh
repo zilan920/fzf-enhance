@@ -4,10 +4,6 @@
 # === 🎯 Configuration Variables ===
 # Set these in your .zshrc before loading the plugin to customize behavior
 
-# Maximum search depth for file operations (default: 3 for files, 2 for directories)
-FZF_ENHANCE_FILE_DEPTH=${FZF_ENHANCE_FILE_DEPTH:-3}
-FZF_ENHANCE_DIR_DEPTH=${FZF_ENHANCE_DIR_DEPTH:-2}
-
 # Maximum number of results to process (helps with performance)
 FZF_ENHANCE_FILE_LIMIT=${FZF_ENHANCE_FILE_LIMIT:-1000}
 FZF_ENHANCE_DIR_LIMIT=${FZF_ENHANCE_DIR_LIMIT:-500}
@@ -18,6 +14,51 @@ FZF_ENHANCE_EXCLUDE_DIRS=${FZF_ENHANCE_EXCLUDE_DIRS:-"node_modules .git target b
 # Build exclude parameters for fd command
 _get_exclude_dirs() {
   echo "--exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor"
+}
+
+# Generic function to build fd command with depth control
+_build_fd_command() {
+  local type="$1"        # f (file) or d (directory)
+  local depth="$2"       # search depth (0 for unlimited)
+  local extra_args="$3"  # additional fd arguments (optional)
+  
+  local base_cmd="fd --type $type $(_get_exclude_dirs)"
+  
+  if [[ $depth -gt 0 ]]; then
+    base_cmd="$base_cmd --max-depth $depth"
+  fi
+  
+  if [[ -n "$extra_args" ]]; then
+    base_cmd="$base_cmd $extra_args"
+  fi
+  
+  echo "$base_cmd"
+}
+
+# Generic function for file/directory selection with depth control
+_fzf_select() {
+  local type="$1"           # f (file) or d (directory)
+  local depth="$2"          # search depth
+  local prompt="$3"         # fzf prompt
+  local preview_cmd="$4"    # preview command (optional)
+  local bind_cmd="$5"       # key binding command (optional)
+  local extra_fd_args="$6"  # extra fd arguments (optional)
+  local limit_var="$7"      # limit variable name (FZF_ENHANCE_FILE_LIMIT or FZF_ENHANCE_DIR_LIMIT)
+  
+  local fd_cmd=$(_build_fd_command "$type" "$depth" "$extra_fd_args")
+  local limit=${!limit_var}
+  
+  local fzf_cmd="$fd_cmd | head -$limit | fzf --prompt=\"$prompt\""
+  
+  if [[ -n "$preview_cmd" ]]; then
+    fzf_cmd="$fzf_cmd --preview \"$preview_cmd\""
+  fi
+  
+  if [[ -n "$bind_cmd" ]]; then
+    fzf_cmd="$fzf_cmd --bind \"$bind_cmd\""
+  fi
+  
+  eval "$fzf_cmd"
 }
 
 # Store plugin directory at load time for reliable updates
@@ -120,30 +161,105 @@ list_fzf_commands() {
     return 1
   fi
   
-  # Determine clipboard command
+  # Create enhanced preview content with depth control examples
+  local preview_script='
+    cmd=$(echo {} | awk "{print \$1}")
+    desc=$(echo {} | sed "s/^[[:space:]]*[^[:space:]]*[[:space:]]*//" | fmt -w 50)
+    
+    echo "🎯 Command: $cmd"
+    echo "📝 Description: $desc"
+    echo ""
+    echo "💡 Depth Control Examples:"
+    
+    case "$cmd" in
+      fcd)
+        echo "  fcd      - Search current level only (depth 1)"
+        echo "  fcd 2    - Search up to 2 levels deep"
+        echo "  fcd 3    - Search up to 3 levels deep"
+        echo "  fcd 0    - Search all levels (unlimited)"
+        ;;
+      ff)
+        echo "  ff       - Search current level only (depth 1)"
+        echo "  ff 2     - Search up to 2 levels deep"
+        echo "  ff 3     - Search up to 3 levels deep"
+        echo "  ff 0     - Search all levels (unlimited)"
+        ;;
+      fcode)
+        echo "  fcode    - Search code files (default depth 2)"
+        echo "  fcode 3  - Search up to 3 levels deep"
+        echo "  fcode 4  - Search up to 4 levels deep"
+        echo "  fcode 0  - Search all levels (unlimited)"
+        ;;
+      frecent|fsize|fcp|fmv)
+        echo "  $cmd     - Use default depth (2)"
+        echo "  $cmd 3   - Search up to 3 levels deep"
+        echo "  $cmd 4   - Search up to 4 levels deep"
+        echo "  $cmd 0   - Search all levels (unlimited)"
+        ;;
+      fext)
+        echo "  fext     - Search by extension (default depth 3)"
+        echo "  fext 4   - Search up to 4 levels deep"
+        echo "  fext 5   - Search up to 5 levels deep"
+        echo "  fext 0   - Search all levels (unlimited)"
+        ;;
+      *)
+        echo "  $cmd     - No depth control (uses default behavior)"
+        ;;
+    esac
+    
+    echo ""
+    echo "⚡ Press Enter to insert command into shell prompt"
+  '
+  
+  # Determine clipboard and shell manipulation commands
   local clipboard_cmd=""
+  local shell_cmd=""
+  
   if command -v pbcopy &>/dev/null; then
     clipboard_cmd="pbcopy"
   elif command -v xclip &>/dev/null; then
     clipboard_cmd="xclip -selection clipboard"
   elif command -v xsel &>/dev/null; then
     clipboard_cmd="xsel --clipboard --input"
-  else
-    echo "⚠️ No clipboard tool found. Commands will be displayed only."
-    # Use fzf without clipboard functionality
-    printf '%s\n' "${formatted_commands[@]}" | \
-      fzf --prompt="fzf-enhance commands > " \
-          --header="Press Enter to select, Ctrl+C to exit" \
-          --preview="echo {} | sed 's/^[[:space:]]*[^[:space:]]*[[:space:]]*//' | fmt -w 60"
-    return
   fi
   
-  # Use fzf to display commands interactively with clipboard support
-  printf '%s\n' "${formatted_commands[@]}" | \
+  # Select command using fzf
+  local selected_cmd
+  selected_cmd=$(printf '%s\n' "${formatted_commands[@]}" | \
     fzf --prompt="fzf-enhance commands > " \
-        --header="Press Enter to copy command to clipboard, Ctrl+C to exit" \
-        --preview="echo {} | sed 's/^[[:space:]]*[^[:space:]]*[[:space:]]*//' | fmt -w 60" \
-        --bind "enter:execute-silent(echo {} | awk '{print $1}' | $clipboard_cmd)+abort"
+        --header="Select a command to insert into shell prompt" \
+        --preview="$preview_script" \
+        --preview-window="right:60%" \
+        --bind="enter:accept" \
+        | awk '{print $1}')
+  
+  # If a command was selected, insert it into shell
+  if [[ -n "$selected_cmd" ]]; then
+    # Copy to clipboard if available
+    if [[ -n "$clipboard_cmd" ]]; then
+      echo -n "$selected_cmd" | $clipboard_cmd
+      echo "📋 Copied '$selected_cmd' to clipboard"
+    fi
+    
+    # Insert command into shell buffer and position cursor at end
+    if [[ -n "$ZSH_VERSION" ]]; then
+      # ZSH: Use print -z to add to command line buffer
+      print -z "$selected_cmd"
+      echo "✨ '$selected_cmd' inserted into command line. Press Enter to execute or modify as needed."
+    elif [[ -n "$BASH_VERSION" ]]; then
+      # Bash: Use readline to insert into command line
+      if command -v bind &>/dev/null; then
+        bind -x '"\C-x\C-a": echo -n "'"$selected_cmd"'"'
+        echo "✨ '$selected_cmd' ready. Use Ctrl+X Ctrl+A to insert, or type manually."
+      else
+        echo "✨ Selected command: $selected_cmd"
+        echo "💡 Copy and paste this command to execute it."
+      fi
+    else
+      echo "✨ Selected command: $selected_cmd"
+      echo "💡 Copy and paste this command to execute it."
+    fi
+  fi
 }
 
 # Check dependencies first
@@ -195,10 +311,17 @@ _fzf_zjump() {
   fi
 }
 
-# Function for interactive directory change
+# Enhanced function for interactive directory change with depth control
 _fzf_cd() {
+  local depth=${1:-1}  # Default depth is 1 (current directory only)
   local selected_dir
-  selected_dir=$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -$FZF_ENHANCE_DIR_LIMIT | fzf --prompt="CD into dir > ")
+  local prompt_text="CD into dir (depth $depth) > "
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="CD into dir (unlimited) > "
+  fi
+  
+  selected_dir=$(_fzf_select "d" "$depth" "$prompt_text" "" "" "" "FZF_ENHANCE_DIR_LIMIT")
   
   if [[ -n "$selected_dir" ]]; then
     cd "$selected_dir"
@@ -206,41 +329,174 @@ _fzf_cd() {
   fi
 }
 
-# Function for deep directory search
+# Enhanced function for file search with depth control
+_fzf_file() {
+  local depth=${1:-1}  # Default depth is 1 (current directory only)
+  local selected_file
+  local prompt_text="Find files (depth $depth) > "
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Find files (unlimited) > "
+  fi
+  
+  selected_file=$(_fzf_select "f" "$depth" "$prompt_text" "bat --style=numbers --color=always {}" "enter:execute(nvim {})+abort" "" "FZF_ENHANCE_FILE_LIMIT")
+}
+
+# Enhanced function for code file search with depth control  
+_fzf_code() {
+  local depth=${1:-2}  # Default depth is 2 for code files
+  local selected_file
+  local prompt_text="Search code files (depth $depth) > "
+  local code_extensions='\( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \)'
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Search code files (unlimited) > "
+  fi
+  
+  # Create custom limit for code files (80% of file limit)
+  local code_limit=$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))
+  
+  # Use fd directly since we need special file extensions
+  local fd_cmd=$(_build_fd_command "f" "$depth" "$code_extensions")
+  selected_file=$(eval "$fd_cmd | head -$code_limit | fzf --preview 'bat --style=numbers --color=always {}' --prompt='$prompt_text' --bind 'enter:execute(nvim {})+abort'")
+}
+
+# Enhanced function for recent files with depth control
+_fzf_recent() {
+  local depth=${1:-2}  # Default depth is 2 for recent files
+  local selected_file
+  local prompt_text="Recent files (depth $depth) > "
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Recent files (unlimited) > "
+  fi
+  
+  # Use fd to find files, then sort by modification time
+  local fd_cmd=$(_build_fd_command "f" "$depth" "--print0")
+  selected_file=$(eval "$fd_cmd | xargs -0 ls -lt | head -50 | awk '{print \$NF}' | fzf --preview 'bat --style=numbers --color=always {}' --prompt='$prompt_text' --bind 'enter:execute(nvim {})+abort'")
+}
+
+# Enhanced function for file size search with depth control
+_fzf_size() {
+  local depth=${1:-2}  # Default depth is 2 for size search
+  local selected_file
+  local prompt_text="Files by size (depth $depth) > "
+  local size_limit=$((FZF_ENHANCE_FILE_LIMIT / 2))
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Files by size (unlimited) > "
+  fi
+  
+  # Use fd to find files, then sort by size
+  local fd_cmd=$(_build_fd_command "f" "$depth")
+  selected_file=$(eval "$fd_cmd | head -$size_limit | xargs ls -lah | sort -k5 -h | fzf --preview 'bat --style=numbers --color=always {9}' --prompt='$prompt_text' --bind 'enter:execute(nvim {9})+abort'")
+}
+
+# Enhanced function for file copy with depth control
+_fzf_copy() {
+  local depth=${1:-2}  # Default depth is 2 for file operations
+  local selected_file target_dir
+  local prompt_text="Copy file (depth $depth) > "
+  local limit=$((FZF_ENHANCE_FILE_LIMIT / 2))
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Copy file (unlimited) > "
+  fi
+  
+  # Select source file
+  local fd_cmd=$(_build_fd_command "f" "$depth")
+  selected_file=$(eval "$fd_cmd | head -$limit | fzf --prompt='$prompt_text'")
+  
+  if [[ -n "$selected_file" ]]; then
+    # Select target directory with same depth
+    local dir_prompt="To directory (depth $depth) > "
+    if [[ $depth -eq 0 ]]; then
+      dir_prompt="To directory (unlimited) > "
+    fi
+    
+    local dir_limit=$((FZF_ENHANCE_DIR_LIMIT / 2))
+    local dir_fd_cmd=$(_build_fd_command "d" "$depth")
+    target_dir=$(eval "$dir_fd_cmd | head -$dir_limit | fzf --prompt='$dir_prompt'")
+    
+    if [[ -n "$target_dir" ]]; then
+      cp "$selected_file" "$target_dir" && echo "✅ Copied $selected_file to $target_dir"
+    fi
+  fi
+}
+
+# Enhanced function for file move with depth control
+_fzf_move() {
+  local depth=${1:-2}  # Default depth is 2 for file operations
+  local selected_file target_dir
+  local prompt_text="Move file (depth $depth) > "
+  local limit=$((FZF_ENHANCE_FILE_LIMIT / 2))
+  
+  if [[ $depth -eq 0 ]]; then
+    prompt_text="Move file (unlimited) > "
+  fi
+  
+  # Select source file
+  local fd_cmd=$(_build_fd_command "f" "$depth")
+  selected_file=$(eval "$fd_cmd | head -$limit | fzf --prompt='$prompt_text'")
+  
+  if [[ -n "$selected_file" ]]; then
+    # Select target directory with same depth
+    local dir_prompt="To directory (depth $depth) > "
+    if [[ $depth -eq 0 ]]; then
+      dir_prompt="To directory (unlimited) > "
+    fi
+    
+    local dir_limit=$((FZF_ENHANCE_DIR_LIMIT / 2))
+    local dir_fd_cmd=$(_build_fd_command "d" "$depth")
+    target_dir=$(eval "$dir_fd_cmd | head -$dir_limit | fzf --prompt='$dir_prompt'")
+    
+    if [[ -n "$target_dir" ]]; then
+      mv "$selected_file" "$target_dir" && echo "✅ Moved $selected_file to $target_dir"
+    fi
+  fi
+}
+
+# Function for deep directory search (backward compatibility)
 _fzf_cddeep() {
-  local selected_dir
-  selected_dir=$(fd --type d --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --prompt="CD into dir (deep) > ")
-  
-  if [[ -n "$selected_dir" ]]; then
-    cd "$selected_dir"
-    echo "📁 Changed to: $(pwd)"
-  fi
+  _fzf_cd 0
 }
 
-register_fzf_alias f    'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_FILE_LIMIT' | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files (optimized with depth limit and exclusions)"
+# Enhanced function for file extension search with depth control
+_fzf_ext() {
+  local depth=${1:-3}  # Default depth is 3 for extension search
+  local selected_ext files_with_ext
+  
+  # First, find all files and extract extensions
+  local fd_cmd=$(_build_fd_command "f" "$depth")
+  selected_ext=$(eval "$fd_cmd | head -$FZF_ENHANCE_FILE_LIMIT | grep -E '\.[^.]+$' | sed 's/.*\.//' | sort | uniq -c | sort -nr | fzf --prompt='Select extension > ' | awk '{print \$2}'")
+  
+  if [[ -n "$selected_ext" ]]; then
+    # Find all files with the selected extension
+    local ext_fd_cmd=$(_build_fd_command "f" "$depth" "--extension $selected_ext")
+    eval "$ext_fd_cmd | fzf --preview 'bat --style=numbers --color=always {}' --prompt='Files with .$selected_ext extension > ' --bind 'enter:execute(nvim {})+abort'"
+  fi
+}
 
 if check_command fd; then
-  register_fzf_alias cd   '_fzf_cd' true "Fuzzy find and enter subdirectories (optimized)"
+  register_fzf_alias cd   '_fzf_cd' true "Fuzzy find and enter subdirectories (default: depth 1, use fcd 2, fcd 3, etc. for deeper search)"
   
-  # Deep search alternatives for when you need full search
-  register_fzf_alias fdeep 'fd --type f --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (no depth limit)"
-  register_fzf_alias cddeep '_fzf_cddeep' false "Deep directory search (no depth limit)"
+  # Legacy deep search command for backward compatibility
+  register_fzf_alias cddeep '_fzf_cddeep' false "Deep directory search (unlimited depth)"
   
-  register_fzf_alias code 'fd --type f --max-depth '$((FZF_ENHANCE_FILE_DEPTH + 1))' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | head -'$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))' | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (optimized)"
+  # Enhanced file commands with depth control
+  register_fzf_alias f    '_fzf_file' false "Find and open files (default: depth 1, use ff 2, ff 3, etc. for deeper search)"
+  register_fzf_alias code '_fzf_code' false "Search in code files (default: depth 2, use fcode 3, fcode 4, etc. for deeper search)"
+  register_fzf_alias recent '_fzf_recent' false "Find recently accessed files (default: depth 2, use frecent 3, frecent 4, etc. for deeper search)"
+  register_fzf_alias size '_fzf_size' false "Filter and find files by size (default: depth 2, use fsize 3, fsize 4, etc. for deeper search)"
+  register_fzf_alias cp '_fzf_copy' true "Interactive file copy to directory (default: depth 2, use fcp 3, fcp 4, etc. for deeper search)"
+  register_fzf_alias mv '_fzf_move' true "Interactive file move (default: depth 2, use fmv 3, fmv 4, etc. for deeper search)"
   
-  register_fzf_alias recent 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor --print0 | xargs -0 ls -lt | head -50 | awk "{print \$NF}" | fzf --preview "bat --style=numbers --color=always {}" --prompt="Recent files > " --bind "enter:execute(nvim {})+abort"' false "Find recently accessed files (optimized)"
+  # Legacy deep search command for files
+  register_fzf_alias fdeep 'fd --type f $(_get_exclude_dirs) | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (unlimited depth)"
   
-  register_fzf_alias size 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | xargs ls -lah | sort -k5 -h | fzf --preview "bat --style=numbers --color=always {9}" --prompt="Files by size > " --bind "enter:execute(nvim {9})+abort"' false "Filter and find files by size (optimized)"
-  
-  register_fzf_alias ext 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_FILE_LIMIT' | grep -E "\.[^.]+$" | sed "s/.*\.//" | sort | uniq -c | sort -nr | fzf --prompt="Select extension > " | awk "{print \$2}" | xargs -I {} fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --extension {} --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor' false "Filter by file extensions (optimized)"
+  register_fzf_alias ext '_fzf_ext' false "Filter files by extension (default: depth 3, use fext 4, fext 5, etc. for deeper search)"
   
   register_fzf_alias mkdir 'echo -n "New directory name: " && read dirname && mkdir -p "$dirname" && cd "$dirname"' true "Create directory and enter"
-  
-  # Optimized file copy function
-  register_fzf_alias cp 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Copy file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && cp "$file" "$dir" && echo "Copied $file to $dir"' true "Interactive file copy to directory (optimized)"
-  
-  # Optimized file move function  
-  register_fzf_alias mv 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Move file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && mv "$file" "$dir" && echo "Moved $file to $dir"' true "Interactive file move (optimized)"
 else
   echo "⚠️ fzf-enhance: fd not found. Enhanced file navigation disabled."
 fi
@@ -333,7 +589,7 @@ fi
 register_fzf_alias log 'find /var/log -name "*.log" 2>/dev/null | fzf --prompt="Log files > " --preview "tail -20 {}" --bind "enter:execute(tail -f {})+abort"' false "Interactive system log file viewer"
 
 # === 🆕 Command listing utility ===
-register_fzf_alias list 'list_fzf_commands' false "List all registered fzf-enhance commands"
+register_fzf_alias list 'list_fzf_commands' false "Interactive command browser with depth control examples (auto-inserts selected command into shell)"
 
 # === 🔄 Plugin management ===
 # Function to update the plugin
@@ -428,4 +684,5 @@ _fzf_enhance_update() {
 register_fzf_alias update '_fzf_enhance_update' false "Update fzf-enhance plugin from git repository (use 'fupdate [tag]' for specific version)"
 
 echo "💡 Use 'flist' (or 'list' if override enabled) to see all available commands"
+echo "📖 Tip: Most file/directory commands now support depth control - try adding a number (e.g., fcd 2, ff 3)"
 

@@ -119,11 +119,98 @@
 - `img` / `fimg`: Image file management and viewing
 - `video` / `fvideo`: Video file management
 
-### 🆕 Plugin Management
+## 🎯 Depth Control System
+
+Many file and directory commands support flexible depth control to optimize performance and search scope. This replaces the old global depth configuration variables with per-command control.
+
+### How Depth Control Works
+
+- **Depth 1**: Search current directory only
+- **Depth 2**: Search current directory + 1 level of subdirectories
+- **Depth 3**: Search current directory + 2 levels of subdirectories
+- **Depth 0**: Unlimited depth (search all subdirectories)
+
+### Commands Supporting Depth Control
+
+#### Directory Navigation
+
+```bash
+fcd         # Search current level only (depth 1) - default
+fcd 2       # Search up to 2 levels deep
+fcd 3       # Search up to 3 levels deep
+fcd 0       # Search all levels (unlimited)
+```
+
+#### File Search
+
+```bash
+ff          # Search current level only (depth 1) - default
+ff 2        # Search up to 2 levels deep
+ff 3        # Search up to 3 levels deep
+ff 0        # Search all levels (unlimited)
+```
+
+#### Code File Search
+
+```bash
+fcode       # Search code files (default depth 2)
+fcode 3     # Search up to 3 levels deep
+fcode 4     # Search up to 4 levels deep
+fcode 0     # Search all levels (unlimited)
+```
+
+#### File Operations
+
+```bash
+# File copy with depth control
+fcp         # Default depth 2
+fcp 3       # Search files and directories up to 3 levels deep
+fcp 0       # Search all levels (unlimited)
+
+# File move with depth control
+fmv         # Default depth 2
+fmv 3       # Search files and directories up to 3 levels deep
+fmv 0       # Search all levels (unlimited)
+```
+
+#### Advanced File Search
+
+```bash
+# Recent files
+frecent     # Default depth 2
+frecent 3   # Search up to 3 levels deep
+frecent 0   # Search all levels (unlimited)
+
+# Files by size
+fsize       # Default depth 2
+fsize 4     # Search up to 4 levels deep
+fsize 0     # Search all levels (unlimited)
+
+# Files by extension
+fext        # Default depth 3
+fext 5      # Search up to 5 levels deep
+fext 0      # Search all levels (unlimited)
+```
+
+### Performance Benefits
+
+- **Faster searches**: Limiting depth reduces search time in large projects
+- **Relevant results**: Shallow searches often return more relevant files
+- **Reduced noise**: Avoid deep dependency directories like `node_modules`
+- **Flexible when needed**: Use unlimited depth (0) for comprehensive searches
+
+### Backward Compatibility
+
+Legacy commands are still available:
+
+- `fdeep` - Deep file search (unlimited depth)
+- `fcddeep` - Deep directory search (unlimited depth)
+
+### 🟆 Plugin Management
 
 **Command Discovery**
 
-- `list` / `flist`: Interactive list of all registered commands with descriptions
+- `list` / `flist`: Interactive command browser with depth control examples and auto-insertion
 
 **Plugin Updates**
 
