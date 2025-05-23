@@ -1,0 +1,53 @@
+
+fgco|Interactive branch checkout
+fgbb|Browse and switch to all branches (including remote)
+fgcb|Checkout remote branch (creates tracking branch)
+fgrm|Interactive local branch deletion
+fgtag|Checkout tags
+fgcm|Copy recent commit hash
+fgcf|Browse and edit git repository files
+fgst|Show and edit modified files (git status)
+fgroot|Jump to git root directory
+fgshow|Interactive commit details and diff viewer
+fgreset|Interactive reset to specific commit
+fgcherry|Interactive cherry-pick commits
+fgstash|Interactive stash management (Ctrl+D to delete)
+fgremote|Interactive remote repository information
+fgfetch|Selective fetch from remote branches
+fgpull|Select branch for pull operations
+fglog|Interactive file git history viewer
+fgblame|Select file for blame information
+fcd|Fuzzy find and enter subdirectories (default: depth 1, use fcd 2, fcd 3, etc. for deeper search)
+fcddeep|Deep directory search (unlimited depth)
+ff|Find and open files (default: depth 1, use ff 2, ff 3, etc. for deeper search)
+fcode|Search in code files (default: depth 2, use fcode 3, fcode 4, etc. for deeper search)
+frecent|Find recently accessed files (default: depth 2, use frecent 3, frecent 4, etc. for deeper search)
+fsize|Filter and find files by size (default: depth 2, use fsize 3, fsize 4, etc. for deeper search)
+fcp|Interactive file copy to directory (default: depth 2, use fcp 3, fcp 4, etc. for deeper search)
+fmv|Interactive file move (default: depth 2, use fmv 3, fmv 4, etc. for deeper search)
+ffdeep|Deep file search (unlimited depth)
+fext|Filter files by extension (default: depth 3, use fext 4, fext 5, etc. for deeper search)
+fmkdir|Create directory and enter
+fkill|Interactive process termination
+fport|Find and manage processes using specific ports
+ftop|Interactive system resource monitoring (sorted by CPU)
+ffping|Interactive ping testing
+fss|SSH connection management (based on ~/.ssh/config)
+fhost|Edit hosts file entries
+fh|Copy commands from history
+fzjump|Jump to known directories (requires zoxide)
+fdict|Look up words from clipboard (requires dictd)
+fenv|Interactive environment variable viewing and copying
+fpath|Manage PATH variable entries
+fconfig|Quick edit common configuration files
+fdotfile|Manage dotfiles
+fpkg|Interactive package management (Ctrl+U uninstall)
+fnode|Node.js global package management
+flint|Interactive code linting tools (supports Python, JavaScript, TypeScript)
+fmd|Preview and edit Markdown files
+fpdf|Find and open PDF files
+fimg|Image file management and viewing
+fvideo|Video file management
+flog|Interactive system log file viewer
+flist|Interactive command browser with depth control examples (auto-inserts selected command into shell)
+fupdate|Update fzf-enhance plugin from git repository (use 'fupdate [tag]' for specific version)

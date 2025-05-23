@@ -209,48 +209,51 @@ list_fzf_commands() {
     
     echo ""
     echo "⚡ Press Enter to insert command into shell prompt"
+    echo "📋 Command will be copied to clipboard (command only)"
   '
   
-  # Determine clipboard and shell manipulation commands
-  local clipboard_cmd=""
-  local shell_cmd=""
-  
-  if command -v pbcopy &>/dev/null; then
-    clipboard_cmd="pbcopy"
-  elif command -v xclip &>/dev/null; then
-    clipboard_cmd="xclip -selection clipboard"
-  elif command -v xsel &>/dev/null; then
-    clipboard_cmd="xsel --clipboard --input"
-  fi
-  
   # Select command using fzf
-  local selected_cmd
-  selected_cmd=$(printf '%s\n' "${formatted_commands[@]}" | \
+  local selected_line
+  selected_line=$(printf '%s\n' "${formatted_commands[@]}" | \
     fzf --prompt="fzf-enhance commands > " \
         --header="Select a command to insert into shell prompt" \
         --preview="$preview_script" \
         --preview-window="right:60%" \
-        --bind="enter:accept" \
-        | awk '{print $1}')
+        --bind="enter:accept")
   
-  # If a command was selected, insert it into shell
-  if [[ -n "$selected_cmd" ]]; then
-    # Copy to clipboard if available
+  # Extract just the command name (first field) from selected line
+  if [[ -n "$selected_line" ]]; then
+    local selected_cmd=$(echo "$selected_line" | awk '{print $1}')
+    
+    # Ensure we only have the command name, no extra whitespace or content
+    selected_cmd=$(echo "$selected_cmd" | tr -d ' \t\n\r')
+    
+    # Copy to clipboard if available (command only)
+    local clipboard_cmd=""
+    if command -v pbcopy &>/dev/null; then
+      clipboard_cmd="pbcopy"
+    elif command -v xclip &>/dev/null; then
+      clipboard_cmd="xclip -selection clipboard"
+    elif command -v xsel &>/dev/null; then
+      clipboard_cmd="xsel --clipboard --input"
+    fi
+    
     if [[ -n "$clipboard_cmd" ]]; then
       echo -n "$selected_cmd" | $clipboard_cmd
       echo "📋 Copied '$selected_cmd' to clipboard"
     fi
     
-    # Insert command into shell buffer and position cursor at end
+    # Insert command into shell buffer
     if [[ -n "$ZSH_VERSION" ]]; then
       # ZSH: Use print -z to add to command line buffer
       print -z "$selected_cmd"
       echo "✨ '$selected_cmd' inserted into command line. Press Enter to execute or modify as needed."
     elif [[ -n "$BASH_VERSION" ]]; then
-      # Bash: Use readline to insert into command line
+      # Bash: Try different methods to insert into command line
       if command -v bind &>/dev/null; then
-        bind -x '"\C-x\C-a": echo -n "'"$selected_cmd"'"'
-        echo "✨ '$selected_cmd' ready. Use Ctrl+X Ctrl+A to insert, or type manually."
+        # Method 1: Use readline
+        printf '\e[2K\r%s' "$selected_cmd"
+        echo "✨ '$selected_cmd' inserted into command line."
       else
         echo "✨ Selected command: $selected_cmd"
         echo "💡 Copy and paste this command to execute it."

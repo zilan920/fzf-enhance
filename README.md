@@ -211,6 +211,11 @@ Legacy commands are still available:
 **Command Discovery**
 
 - `list` / `flist`: Interactive command browser with depth control examples and auto-insertion
+  - Browse all available commands with detailed descriptions
+  - Preview shows depth control examples for file/directory commands
+  - **Auto-insertion**: Selected command is automatically inserted into your shell prompt
+  - **Clean copy**: Only the command name (no description) is copied to clipboard
+  - **Ready to use**: Press Enter to execute or modify the command as needed
 
 **Plugin Updates**
 
@@ -447,8 +452,11 @@ pkg  # or fpkg (Ctrl+U uninstall)
 # List all available commands
 list  # or flist
 
-# Browse commands interactively with descriptions
-# Press Enter to copy command name to clipboard
+# Interactive command browser with enhanced features:
+# - Browse commands with detailed descriptions
+# - See depth control examples in preview
+# - Auto-insert selected command into shell prompt
+# - Only command name (clean) copied to clipboard
 
 # Update plugin to latest version
 update  # or fupdate
