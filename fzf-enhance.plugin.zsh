@@ -65,6 +65,10 @@ register_fzf_alias() {
     name="f$base"
   fi
 
+  # Store command info to file regardless of whether alias exists
+  local desc="${description:-No description available}"
+  echo "$name|$desc" >> "$FZF_ENHANCE_COMMANDS_FILE"
+
   # Skip if alias or system command already exists
   if alias "$name" &>/dev/null || command -v "$name" &>/dev/null; then
     echo "⚠️ Skipping alias '$name': already defined"
@@ -73,10 +77,6 @@ register_fzf_alias() {
 
   # Use printf to safely escape commands, avoiding complex quote handling
   eval "alias $name='$raw_command'"
-  
-  # Store command info to file instead of array
-  local desc="${description:-No description available}"
-  echo "$name|$desc" >> "$FZF_ENHANCE_COMMANDS_FILE"
 }
 
 # Function to list all registered commands
@@ -115,7 +115,7 @@ list_fzf_commands() {
     printf '%s\n' "${formatted_commands[@]}" | \
       fzf --prompt="fzf-enhance commands > " \
           --header="Press Enter to select, Ctrl+C to exit" \
-          --preview="echo 'Command: {}' | head -1 | awk '{print \$1}'"
+          --preview="echo {} | sed 's/^[[:space:]]*[^[:space:]]*[[:space:]]*//' | fmt -w 60"
     return
   fi
   
@@ -123,8 +123,8 @@ list_fzf_commands() {
   printf '%s\n' "${formatted_commands[@]}" | \
     fzf --prompt="fzf-enhance commands > " \
         --header="Press Enter to copy command to clipboard, Ctrl+C to exit" \
-        --preview="echo 'Command: {}' | head -1 | awk '{print \$1}'" \
-        --bind "enter:execute-silent(echo {} | awk '{print \$1}' | $clipboard_cmd)+abort"
+        --preview="echo {} | sed 's/^[[:space:]]*[^[:space:]]*[[:space:]]*//' | fmt -w 60" \
+        --bind "enter:execute-silent(echo {} | awk '{print $1}' | $clipboard_cmd)+abort"
 }
 
 # Check dependencies first
