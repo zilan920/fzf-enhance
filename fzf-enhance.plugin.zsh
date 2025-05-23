@@ -183,14 +183,48 @@ else
 fi
 
 # === 🟩 File navigation ===
+
+# Function for interactive directory change using zoxide
+_fzf_zjump() {
+  local selected_dir
+  selected_dir=$(zoxide query -l | fzf --prompt="Jump to > ")
+  
+  if [[ -n "$selected_dir" ]]; then
+    cd "$selected_dir"
+    echo "🚀 Jumped to: $(pwd)"
+  fi
+}
+
+# Function for interactive directory change
+_fzf_cd() {
+  local selected_dir
+  selected_dir=$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -$FZF_ENHANCE_DIR_LIMIT | fzf --prompt="CD into dir > ")
+  
+  if [[ -n "$selected_dir" ]]; then
+    cd "$selected_dir"
+    echo "📁 Changed to: $(pwd)"
+  fi
+}
+
+# Function for deep directory search
+_fzf_cddeep() {
+  local selected_dir
+  selected_dir=$(fd --type d --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --prompt="CD into dir (deep) > ")
+  
+  if [[ -n "$selected_dir" ]]; then
+    cd "$selected_dir"
+    echo "📁 Changed to: $(pwd)"
+  fi
+}
+
 register_fzf_alias f    'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_FILE_LIMIT' | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files (optimized with depth limit and exclusions)"
 
 if check_command fd; then
-  register_fzf_alias cd   'fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_DIR_LIMIT' | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' true "Fuzzy find and enter subdirectories (optimized)"
+  register_fzf_alias cd   '_fzf_cd' true "Fuzzy find and enter subdirectories (optimized)"
   
   # Deep search alternatives for when you need full search
   register_fzf_alias fdeep 'fd --type f --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (no depth limit)"
-  register_fzf_alias cddeep 'fd --type d --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' false "Deep directory search (no depth limit)"
+  register_fzf_alias cddeep '_fzf_cddeep' false "Deep directory search (no depth limit)"
   
   register_fzf_alias code 'fd --type f --max-depth '$((FZF_ENHANCE_FILE_DEPTH + 1))' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | head -'$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))' | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (optimized)"
   
@@ -234,7 +268,7 @@ fi
 register_fzf_alias h   'history | fzf --tac --preview "echo {}" --bind "enter:execute-silent(echo {} | cut -c 8- | pbcopy)+abort"' false "Copy commands from history"
 
 if check_command zoxide; then
-  register_fzf_alias zjump 'zoxide query -l | fzf --prompt="Jump to > " --bind "enter:execute(cd {+})+abort"' false "Jump to known directories (requires zoxide)"
+  register_fzf_alias zjump '_fzf_zjump' false "Jump to known directories (requires zoxide)"
 else
   echo "⚠️ fzf-enhance: zoxide not found. Directory jumping (zjump) disabled."
 fi

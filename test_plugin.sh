@@ -51,7 +51,21 @@ echo ""
 
 # 3. 验证核心commands是否注册
 echo "🔍 Step 3: Verifying core commands..."
-CORE_COMMANDS=("ff" "fcd" "fdeep" "cddeep" "fcode" "fcp" "fmv" "fkill" "fh" "flist" "fupdate" "ffping")
+CORE_COMMANDS=(
+  "ff"
+  "fcd" 
+  "fdeep"
+  "cddeep"
+  "fcode"
+  "fcp"
+  "fmv"
+  "fkill"
+  "fh"
+  "flist"
+  "fupdate"
+  "ffping"
+  "fzjump"
+)
 FAILED_COMMANDS=()
 
 for cmd in "${CORE_COMMANDS[@]}"; do
