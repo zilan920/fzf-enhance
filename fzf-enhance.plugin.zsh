@@ -2,10 +2,21 @@
 # Smart alias registration with conflict avoidance
 
 # Store plugin directory at load time for reliable updates
-FZF_ENHANCE_PLUGIN_DIR="$(dirname "${(%):-%x}")"
+# Compatible with both zsh and bash
+if [[ -n "$ZSH_VERSION" ]]; then
+  FZF_ENHANCE_PLUGIN_DIR="$(dirname "${(%):-%x}")"
+elif [[ -n "$BASH_VERSION" ]]; then
+  FZF_ENHANCE_PLUGIN_DIR="$(dirname "${BASH_SOURCE[0]}")"
+else
+  # Fallback to current directory
+  FZF_ENHANCE_PLUGIN_DIR="$(pwd)"
+fi
 
-# Array to store all registered commands for listing
-declare -a FZF_ENHANCE_COMMANDS
+# Commands registry file
+FZF_ENHANCE_COMMANDS_FILE="$FZF_ENHANCE_PLUGIN_DIR/.fzf_enhance_commands"
+
+# Initialize commands file (clear existing content)
+> "$FZF_ENHANCE_COMMANDS_FILE"
 
 # Check if a command exists
 check_command() {
@@ -63,27 +74,57 @@ register_fzf_alias() {
   # Use printf to safely escape commands, avoiding complex quote handling
   eval "alias $name='$raw_command'"
   
-  # Add to registered commands list with description
+  # Store command info to file instead of array
   local desc="${description:-No description available}"
-  FZF_ENHANCE_COMMANDS+=("$name|$desc")
+  echo "$name|$desc" >> "$FZF_ENHANCE_COMMANDS_FILE"
 }
 
 # Function to list all registered commands
 list_fzf_commands() {
-  # Format commands for fzf display
-  local formatted_commands=()
-  for cmd_info in "${FZF_ENHANCE_COMMANDS[@]}"; do
-    local cmd_name="${cmd_info%%|*}"
-    local cmd_desc="${cmd_info##*|}"
-    formatted_commands+=("$(printf "%-12s %s" "$cmd_name" "$cmd_desc")")
-  done
+  # Check if commands file exists
+  if [[ ! -f "$FZF_ENHANCE_COMMANDS_FILE" ]]; then
+    echo "❌ Commands registry file not found: $FZF_ENHANCE_COMMANDS_FILE"
+    return 1
+  fi
   
-  # Use fzf to display commands interactively
+  # Read commands from file and format them for fzf display
+  local formatted_commands=()
+  while IFS='|' read -r cmd_name cmd_desc; do
+    # Skip empty lines and lines without proper format
+    [[ -z "$cmd_name" || -z "$cmd_desc" ]] && continue
+    formatted_commands+=("$(printf "%-12s %s" "$cmd_name" "$cmd_desc")")
+  done < <(grep -v '^$' "$FZF_ENHANCE_COMMANDS_FILE")
+  
+  # Check if we have any commands
+  if [[ ${#formatted_commands[@]} -eq 0 ]]; then
+    echo "❌ No commands found in registry"
+    return 1
+  fi
+  
+  # Determine clipboard command
+  local clipboard_cmd=""
+  if command -v pbcopy &>/dev/null; then
+    clipboard_cmd="pbcopy"
+  elif command -v xclip &>/dev/null; then
+    clipboard_cmd="xclip -selection clipboard"
+  elif command -v xsel &>/dev/null; then
+    clipboard_cmd="xsel --clipboard --input"
+  else
+    echo "⚠️ No clipboard tool found. Commands will be displayed only."
+    # Use fzf without clipboard functionality
+    printf '%s\n' "${formatted_commands[@]}" | \
+      fzf --prompt="fzf-enhance commands > " \
+          --header="Press Enter to select, Ctrl+C to exit" \
+          --preview="echo 'Command: {}' | head -1 | awk '{print \$1}'"
+    return
+  fi
+  
+  # Use fzf to display commands interactively with clipboard support
   printf '%s\n' "${formatted_commands[@]}" | \
     fzf --prompt="fzf-enhance commands > " \
         --header="Press Enter to copy command to clipboard, Ctrl+C to exit" \
-        --preview="echo 'Command: {}' | head -1 | awk '{print \$2}'" \
-        --bind "enter:execute-silent(echo {} | awk '{print \$1}' | pbcopy)+abort"
+        --preview="echo 'Command: {}' | head -1 | awk '{print \$1}'" \
+        --bind "enter:execute-silent(echo {} | awk '{print \$1}' | $clipboard_cmd)+abort"
 }
 
 # Check dependencies first
