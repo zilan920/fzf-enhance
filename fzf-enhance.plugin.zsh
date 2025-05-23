@@ -1,6 +1,9 @@
 # === Plugin: fzf-enhance ===
 # Smart alias registration with conflict avoidance
 
+# Store plugin directory at load time for reliable updates
+FZF_ENHANCE_PLUGIN_DIR="$(dirname "${(%):-%x}")"
+
 # Array to store all registered commands for listing
 declare -a FZF_ENHANCE_COMMANDS
 
@@ -221,6 +224,9 @@ register_fzf_alias log 'find /var/log -name "*.log" 2>/dev/null | fzf --prompt="
 
 # === 🆕 Command listing utility ===
 register_fzf_alias list 'list_fzf_commands' false "List all registered fzf-enhance commands"
+
+# === 🔄 Plugin management ===
+register_fzf_alias update 'echo "🔄 Updating fzf-enhance plugin..." && cd "$FZF_ENHANCE_PLUGIN_DIR" && echo "📁 Plugin directory: $FZF_ENHANCE_PLUGIN_DIR" && git pull && echo "✅ Plugin updated successfully! Please restart your shell or run: source ~/.zshrc"' false "Update fzf-enhance plugin from git repository"
 
 echo "✅ fzf-enhance: All enhanced features loaded successfully!"
 echo "💡 Use 'flist' (or 'list' if override enabled) to see all available commands"
