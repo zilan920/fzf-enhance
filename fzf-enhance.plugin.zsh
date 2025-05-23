@@ -16,12 +16,8 @@ FZF_ENHANCE_DIR_LIMIT=${FZF_ENHANCE_DIR_LIMIT:-500}
 FZF_ENHANCE_EXCLUDE_DIRS=${FZF_ENHANCE_EXCLUDE_DIRS:-"node_modules .git target build dist __pycache__ .venv venv .next .nuxt .cache .tmp vendor"}
 
 # Build exclude parameters for fd command
-_build_exclude_params() {
-  local exclude_params=""
-  for dir in $FZF_ENHANCE_EXCLUDE_DIRS; do
-    exclude_params="$exclude_params --exclude $dir"
-  done
-  echo "$exclude_params"
+_get_exclude_dirs() {
+  echo "--exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor"
 }
 
 # Store plugin directory at load time for reliable updates
@@ -187,30 +183,30 @@ else
 fi
 
 # === 🟩 File navigation ===
-register_fzf_alias f    'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_FILE_LIMIT' | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files (optimized with depth limit and exclusions)"
+register_fzf_alias f    'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_FILE_LIMIT' | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files (optimized with depth limit and exclusions)"
 
 if check_command fd; then
-  register_fzf_alias cd   'fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_DIR_LIMIT' | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' true "Fuzzy find and enter subdirectories (optimized)"
+  register_fzf_alias cd   'fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_DIR_LIMIT' | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' true "Fuzzy find and enter subdirectories (optimized)"
   
   # Deep search alternatives for when you need full search
-  register_fzf_alias fdeep 'fd --type f $(_build_exclude_params) | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (no depth limit)"
-  register_fzf_alias cddeep 'fd --type d $(_build_exclude_params) | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' false "Deep directory search (no depth limit)"
+  register_fzf_alias fdeep 'fd --type f --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Deep file search (no depth limit)"
+  register_fzf_alias cddeep 'fd --type d --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' false "Deep directory search (no depth limit)"
   
-  register_fzf_alias code 'fd --type f --max-depth '$((FZF_ENHANCE_FILE_DEPTH + 1))' $(_build_exclude_params) \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | head -'$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))' | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (optimized)"
+  register_fzf_alias code 'fd --type f --max-depth '$((FZF_ENHANCE_FILE_DEPTH + 1))' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | head -'$((FZF_ENHANCE_FILE_LIMIT * 80 / 100))' | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (optimized)"
   
-  register_fzf_alias recent 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) --print0 | xargs -0 ls -lt | head -50 | awk "{print \$NF}" | fzf --preview "bat --style=numbers --color=always {}" --prompt="Recent files > " --bind "enter:execute(nvim {})+abort"' false "Find recently accessed files (optimized)"
+  register_fzf_alias recent 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor --print0 | xargs -0 ls -lt | head -50 | awk "{print \$NF}" | fzf --preview "bat --style=numbers --color=always {}" --prompt="Recent files > " --bind "enter:execute(nvim {})+abort"' false "Find recently accessed files (optimized)"
   
-  register_fzf_alias size 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | xargs ls -lah | sort -k5 -h | fzf --preview "bat --style=numbers --color=always {9}" --prompt="Files by size > " --bind "enter:execute(nvim {9})+abort"' false "Filter and find files by size (optimized)"
+  register_fzf_alias size 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | xargs ls -lah | sort -k5 -h | fzf --preview "bat --style=numbers --color=always {9}" --prompt="Files by size > " --bind "enter:execute(nvim {9})+abort"' false "Filter and find files by size (optimized)"
   
-  register_fzf_alias ext 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$FZF_ENHANCE_FILE_LIMIT' | grep -E "\.[^.]+$" | sed "s/.*\.//" | sort | uniq -c | sort -nr | fzf --prompt="Select extension > " | awk "{print \$2}" | xargs -I {} fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --extension {} $(_build_exclude_params)' false "Filter by file extensions (optimized)"
+  register_fzf_alias ext 'fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$FZF_ENHANCE_FILE_LIMIT' | grep -E "\.[^.]+$" | sed "s/.*\.//" | sort | uniq -c | sort -nr | fzf --prompt="Select extension > " | awk "{print \$2}" | xargs -I {} fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --extension {} --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor' false "Filter by file extensions (optimized)"
   
   register_fzf_alias mkdir 'echo -n "New directory name: " && read dirname && mkdir -p "$dirname" && cd "$dirname"' true "Create directory and enter"
   
   # Optimized file copy function
-  register_fzf_alias cp 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Copy file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && cp "$file" "$dir" && echo "Copied $file to $dir"' true "Interactive file copy to directory (optimized)"
+  register_fzf_alias cp 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Copy file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && cp "$file" "$dir" && echo "Copied $file to $dir"' true "Interactive file copy to directory (optimized)"
   
   # Optimized file move function  
-  register_fzf_alias mv 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Move file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' $(_build_exclude_params) | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && mv "$file" "$dir" && echo "Moved $file to $dir"' true "Interactive file move (optimized)"
+  register_fzf_alias mv 'file=$(fd --type f --max-depth '$FZF_ENHANCE_FILE_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_FILE_LIMIT / 2))' | fzf --prompt="Move file > ") && [[ -n "$file" ]] && dir=$(fd --type d --max-depth '$FZF_ENHANCE_DIR_DEPTH' --exclude node_modules --exclude .git --exclude target --exclude build --exclude dist --exclude __pycache__ --exclude .venv --exclude venv --exclude .next --exclude .nuxt --exclude .cache --exclude .tmp --exclude vendor | head -'$((FZF_ENHANCE_DIR_LIMIT / 2))' | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && mv "$file" "$dir" && echo "Moved $file to $dir"' true "Interactive file move (optimized)"
 else
   echo "⚠️ fzf-enhance: fd not found. Enhanced file navigation disabled."
 fi
@@ -220,7 +216,7 @@ register_fzf_alias kill 'ps -ef | sed 1d | fzf --header="Select process to kill"
 
 register_fzf_alias port 'lsof -i -P -n | grep LISTEN | fzf --prompt="Kill process on port > " --bind "enter:execute(kill -9 {2})+abort"' false "Find and manage processes using specific ports"
 register_fzf_alias top 'ps aux --sort=-%cpu | head -20 | fzf --header="Top processes by CPU" --bind "enter:execute(kill -9 {2})+abort"' true "Interactive system resource monitoring (sorted by CPU)"
-register_fzf_alias ping 'echo -e "google.com\n8.8.8.8\n1.1.1.1\nlocalhost" | fzf --prompt="Ping host > " --bind "enter:execute(ping {})+abort"' true "Interactive ping testing"
+register_fzf_alias fping 'echo -e "google.com\n8.8.8.8\n1.1.1.1\nlocalhost" | fzf --prompt="Ping host > " --bind "enter:execute(ping {})+abort"' false "Interactive ping testing"
 
 if [[ -f ~/.ssh/config ]]; then
   register_fzf_alias ss 'grep "^Host " ~/.ssh/config | awk "{print \$2}" | fzf --prompt="SSH to > " --bind "enter:execute(ssh {})+abort"' false "SSH connection management (based on ~/.ssh/config)"

@@ -31,7 +31,7 @@ fmv|Interactive file move (optimized)
 fkill|Interactive process termination
 fport|Find and manage processes using specific ports
 ftop|Interactive system resource monitoring (sorted by CPU)
-fping|Interactive ping testing
+ffping|Interactive ping testing
 fss|SSH connection management (based on ~/.ssh/config)
 fhost|Edit hosts file entries
 fh|Copy commands from history

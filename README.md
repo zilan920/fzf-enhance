@@ -66,7 +66,7 @@
 
 **Network Tools**
 
-- `fping`: Interactive ping testing
+- `ffping`: Interactive ping testing
 - `ss` / `fss`: SSH connection management (based on ~/.ssh/config)
 - `fhost`: Edit hosts file entries
 
@@ -214,6 +214,33 @@ pip install flake8
    ```zsh
    source /path/to/fzf-enhance/fzf-enhance.plugin.zsh
    ```
+
+## 🧪 Testing
+
+A comprehensive test script is provided to verify plugin functionality:
+
+```bash
+# Run the test script
+./test_plugin.sh
+```
+
+The test script will:
+
+- Clean existing aliases to avoid conflicts
+- Reload the plugin
+- Verify all core commands are registered
+- Check dependencies
+- Test command definitions
+- Validate configuration variables
+- Perform quick functionality tests
+- Generate a detailed report
+
+Use this script whenever you:
+
+- Update the plugin
+- Modify configurations
+- Troubleshoot issues
+- Verify installation
 
 ## 🧠 Naming Rules
 
