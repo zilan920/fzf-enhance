@@ -249,7 +249,16 @@ fi
 register_fzf_alias kill 'ps -ef | sed 1d | fzf --header="Select process to kill" --bind "enter:execute(kill -9 {1})+abort" --preview "echo PID: {1}"' true "Interactive process termination"
 
 register_fzf_alias port 'lsof -i -P -n | grep LISTEN | fzf --prompt="Kill process on port > " --bind "enter:execute(kill -9 {2})+abort"' false "Find and manage processes using specific ports"
-register_fzf_alias top 'ps aux --sort=-%cpu | head -20 | fzf --header="Top processes by CPU" --bind "enter:execute(kill -9 {2})+abort"' true "Interactive system resource monitoring (sorted by CPU)"
+
+# Detect OS and use appropriate ps command for top processes
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS/BSD ps
+  register_fzf_alias top 'ps aux -r | head -20 | fzf --header="Top processes by CPU" --bind "enter:execute(kill -9 {2})+abort"' true "Interactive system resource monitoring (sorted by CPU)"
+else
+  # Linux ps with --sort option
+  register_fzf_alias top 'ps aux --sort=-%cpu | head -20 | fzf --header="Top processes by CPU" --bind "enter:execute(kill -9 {2})+abort"' true "Interactive system resource monitoring (sorted by CPU)"
+fi
+
 register_fzf_alias fping 'echo -e "google.com\n8.8.8.8\n1.1.1.1\nlocalhost" | fzf --prompt="Ping host > " --bind "enter:execute(ping {})+abort"' false "Interactive ping testing"
 
 if [[ -f ~/.ssh/config ]]; then

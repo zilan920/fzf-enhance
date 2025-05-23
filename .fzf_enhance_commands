@@ -36,6 +36,7 @@ fss|SSH connection management (based on ~/.ssh/config)
 fhost|Edit hosts file entries
 fh|Copy commands from history
 fzjump|Jump to known directories (requires zoxide)
+fdict|Look up words from clipboard (requires dictd)
 fenv|Interactive environment variable viewing and copying
 fpath|Manage PATH variable entries
 fconfig|Quick edit common configuration files
