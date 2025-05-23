@@ -1,146 +1,332 @@
 # fzf-enhance
 
-🎯 一个增强你 Git、文件和系统工作流的 Oh My Zsh 插件，使用 `fzf` + 智能别名。
+🎯 An Oh My Zsh plugin that enhances your Git, file, and system workflows using `fzf` + smart aliases.
 
-## ✨ 特性
+## ✨ Features
 
-### 🟦 Git 工具
+### 🟦 Git Tools
 
-- `gco` / `fgco`: 交互式切换分支
-- `gbb` / `fgbb`: 浏览并切换到所有分支（包括远程）
-- `gcb` / `fgcb`: 检出远程分支（会创建跟踪分支）
-- `grm` / `fgrm`: 交互式删除本地分支
-- `gst` / `fgst`: 显示并编辑修改的文件（git status）
-- `gcf` / `fgcf`: 浏览并编辑 git 仓库中的文件
-- `gtag` / `fgtag`: 检出标签
-- `gcm` / `fgcm`: 复制最近提交的哈希值
+**Basic Operations**
 
-### 🟩 文件导航
+- `gco` / `fgco`: Interactive branch checkout
+- `gbb` / `fgbb`: Browse and switch to all branches (including remote)
+- `gcb` / `fgcb`: Checkout remote branch (creates tracking branch)
+- `grm` / `fgrm`: Interactive local branch deletion
+- `gst` / `fgst`: Show and edit modified files (git status)
+- `gcf` / `fgcf`: Browse and edit git repository files
+- `gtag` / `fgtag`: Checkout tags
+- `gcm` / `fgcm`: Copy recent commit hash
+- `groot` / `fgroot`: Jump to git root directory
 
-- `ff` / `fff`: 查找并打开文件
-- `fcd` / `ffcd`: 模糊查找并进入子目录
-- `groot` / `fgroot`: 跳转到 git 根目录
+**Commit Management**
 
-### 🟥 系统工具
+- `gshow` / `fgshow`: Interactive commit details and diff viewer
+- `greset` / `fgreset`: Interactive reset to specific commit
+- `gcherry` / `fgcherry`: Interactive cherry-pick commits
+- `gstash` / `fgstash`: Interactive stash management (view, apply, delete with Ctrl+D)
 
-- `fkill`: 交互式终止进程
+**Remote Repository Management**
 
-### 🟨 通用实用工具
+- `gremote` / `fgremote`: Interactive remote repository information
+- `gfetch` / `fgfetch`: Selective fetch from remote branches
+- `gpull` / `fgpull`: Select branch for pull operations
 
-- `fh` / `ffh`: 从历史记录复制命令
-- `zjump` / `fzjump`: 跳转到已知目录（需要 `zoxide`）
-- `dict` / `fdict`: 查找剪贴板中的单词（需要 `dictd`）
+**File History**
 
-## 📦 依赖
+- `glog` / `fglog`: Interactive file git history viewer
+- `gblame` / `fgblame`: Select file for blame information
 
-安装以下依赖以获得最佳体验：
+### 🟩 File Navigation
 
-- `fzf` - 模糊查找器
-- `bat` - 语法高亮的 cat 替代品
-- `fd` - 快速文件查找
-- `zoxide` - 智能目录跳转
-- `dictd` - 字典服务（可选）
+**Basic Operations**
 
-### 快速安装依赖
+- `f` / `ff`: Find and open files
+- `cd` / `fcd`: Fuzzy find and enter subdirectories
 
-运行包含的准备脚本：
+**Advanced Search**
+
+- `code` / `fcode`: Search in code files (supports multiple programming languages)
+- `recent` / `frecent`: Find recently accessed files
+- `size` / `fsize`: Filter and find files by size
+- `ext` / `fext`: Filter by file extensions
+
+**Directory Operations**
+
+- `mkdir` / `fmkdir`: Create directory and enter
+- `cp` / `fcp`: Interactive file copy to directory
+- `mv` / `fmv`: Interactive file move
+
+### 🟥 System Tools
+
+**Process Management**
+
+- `kill` / `fkill`: Interactive process termination
+- `port` / `fport`: Find and manage processes using specific ports
+- `top` / `ftop`: Interactive system resource monitoring (sorted by CPU)
+
+**Network Tools**
+
+- `ping` / `fping`: Interactive ping testing
+- `ss` / `fss`: SSH connection management (based on ~/.ssh/config)
+- `host` / `fhost`: Edit hosts file entries
+
+**Service Management**
+
+- `service` / `fservice`: Manage system services (supports systemctl, Ctrl+R restart, Ctrl+S stop)
+
+### 🟨 General Utilities
+
+**Basic Functions**
+
+- `h` / `fh`: Copy commands from history
+- `zjump` / `fzjump`: Jump to known directories (requires `zoxide`)
+- `dict` / `fdict`: Look up words from clipboard (requires `dictd`)
+
+**Environment Variables**
+
+- `env` / `fenv`: Interactive environment variable viewing and copying
+- `path` / `fpath`: Manage PATH variable entries
+
+**Configuration Files**
+
+- `config` / `fconfig`: Quick edit common configuration files
+- `dotfile` / `fdotfile`: Manage dotfiles
+
+**Package Management**
+
+- `pkg` / `fpkg`: Interactive package management (supports brew, apt, Ctrl+U uninstall)
+- `docker` / `fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
+- `node` / `fnode`: Node.js global package management
+
+### 🟪 Development Tools
+
+**Code Quality**
+
+- `lint` / `flint`: Interactive code linting tools (supports Python, JavaScript, TypeScript)
+- `test` / `ftest`: Select and run test files
+- `build` / `fbuild`: Interactive project building (supports npm, Make)
+
+### 🟧 Media and Documents
+
+**Document Operations**
+
+- `md` / `fmd`: Preview and edit Markdown files
+- `pdf` / `fpdf`: Find and open PDF files
+- `log` / `flog`: Interactive system log file viewer
+
+**Media Files**
+
+- `img` / `fimg`: Image file management and viewing
+- `video` / `fvideo`: Video file management
+
+## 📦 Dependencies
+
+Install the following dependencies for the best experience:
+
+**Required Dependencies**
+
+- `fzf` - Fuzzy finder (core functionality)
+- `git` - Git version control (Git-related features)
+
+**Recommended Dependencies**
+
+- `bat` - Syntax highlighting cat replacement (file preview)
+- `fd` - Fast file finder (enhanced file navigation)
+- `zoxide` - Smart directory jumping
+- `lsof` - Port and process management
+- `docker` - Container management functionality
+- `npm` - Node.js package management
+- `systemctl` - System service management (Linux)
+
+**Optional Dependencies**
+
+- `dictd` - Dictionary service
+- `flake8` - Python code checking
+- `eslint` - JavaScript/TypeScript code checking
+
+### Quick Dependency Installation
+
+Run the included preparation script:
 
 ```bash
 ./prepare.sh
 ```
 
-或手动安装：
+Or install manually:
 
 ```bash
 # macOS (Homebrew)
 brew install fzf bat fd zoxide
 
 # Ubuntu/Debian
-sudo apt update && sudo apt install -y fzf bat fd-find zoxide
+sudo apt update && sudo apt install -y fzf bat fd-find zoxide lsof
+
+# Node.js related (optional)
+npm install -g eslint
+
+# Python related (optional)
+pip install flake8
 ```
 
-## 🚀 安装
+## 🚀 Installation
 
-### 使用 Oh My Zsh
+### Using Oh My Zsh
 
-1. 克隆仓库到 Oh My Zsh 自定义插件目录：
+1. Clone the repository to your Oh My Zsh custom plugins directory:
 
    ```bash
    git clone https://github.com/your-repo/fzf-enhance ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-enhance
    ```
 
-2. 在 `~/.zshrc` 中添加插件到插件列表：
+2. Add the plugin to your plugins list in `~/.zshrc`:
 
    ```zsh
    plugins=(... fzf-enhance)
    ```
 
-3. 重启终端或运行：
+3. Restart your terminal or run:
    ```bash
    source ~/.zshrc
    ```
 
-### 手动安装
+### Manual Installation
 
-1. 克隆仓库：
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/your-repo/fzf-enhance.git
    ```
 
-2. 在 `~/.zshrc` 中添加：
+2. Add to your `~/.zshrc`:
    ```zsh
    source /path/to/fzf-enhance/fzf-enhance.plugin.zsh
    ```
 
-## 🧠 命令命名规则
+## 🧠 Naming Rules
 
-- 默认情况下，所有命令都以 `f` 为前缀（如 `fgco`、`fgst`、`fkill`）以避免别名冲突
-- 要覆盖现有命令（如 `gco`、`gst`），请在 `~/.zshrc` 中设置：
+- By default, all commands use the `f` prefix (e.g., `fgco`, `fkill`) to avoid alias conflicts
+- To override existing commands (e.g., `gco`, `gst`), set in `~/.zshrc`:
   ```zsh
   export FZF_ENHANCE_OVERRIDE=1
   ```
-- 插件会自动检测冲突并跳过已存在的别名
+- **System Command Conflict Protection**: Certain aliases that would conflict with system commands (such as `kill`, `cd`, `mv`, `cp`, `ping`, `top`, `host`, `env`, `mkdir`, `service`, `docker`, `node`, `test`) will force the `f` prefix even in override mode
+- The plugin automatically detects conflicts and skips existing aliases
 
-## 🎨 使用示例
+### Naming Examples
 
-### Git 工作流
+**Default Mode**:
+
+- Git: `fgco`, `fgst`, `fgshow`
+- Files: `ff`, `fcode`, `frecent`
+- System: `fkill`, `fcd`, `fmv`, `fcp` (forced prefix)
+
+**Override Mode** (`FZF_ENHANCE_OVERRIDE=1`):
+
+- Git: `gco`, `gst`, `gshow` (no prefix)
+- Files: `f`, `code`, `recent` (no prefix)
+- System: `fkill`, `fcd`, `fmv`, `fcp` (still forced prefix to avoid system command conflicts)
+
+## 🎨 Usage Examples
+
+### Git Workflow
 
 ```bash
-# 快速切换分支
-gco  # 或 fgco
+# Quick branch switching
+gco  # or fgco
 
-# 查看并编辑修改的文件
-gst  # 或 fgst
+# View and edit modified files
+gst  # or fgst
 
-# 复制提交哈希
-gcm  # 或 fgcm
+# Manage stash
+gstash  # or fgstash (Ctrl+D to delete stash)
+
+# View commit history and reset
+greset  # or fgreset
+
+# View file git history
+glog  # or fglog
 ```
 
-### 文件操作
+### File Operations
 
 ```bash
-# 查找并打开文件
-ff   # 或 fff
+# Find and open files
+f   # or ff
 
-# 快速跳转目录
-fcd  # 或 ffcd
+# Quick directory navigation (forced prefix)
+fcd
+
+# Search in code files
+code  # or fcode
+
+# Find by file size
+size  # or fsize
+
+# Create directory and enter (forced prefix)
+fmkdir
 ```
 
-### 系统管理
+### System Management
 
 ```bash
-# 终止进程
+# Terminate processes (forced prefix)
 fkill
 
-# 跳转到常用目录
-zjump  # 或 fzjump
+# Manage port usage
+port  # or fport
+
+# View system services (forced prefix)
+fservice (Ctrl+R restart, Ctrl+S stop)
+
+# SSH connections
+ss  # or fss
+
+# Jump to common directories
+zjump  # or fzjump
 ```
 
-## 🔧 自定义
+### Development Tools
 
-插件使用 `register_fzf_alias` 函数注册命令。你可以通过修改 `fzf-enhance.plugin.zsh` 来自定义命令或添加新功能。
+```bash
+# Code checking
+lint  # or flint
 
-## 📝 许可证
+# Run tests (forced prefix)
+ftest
+
+# Build projects
+build  # or fbuild
+
+# Docker management (forced prefix)
+fdocker (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
+```
+
+### Configuration Management
+
+```bash
+# Edit configuration files
+config  # or fconfig
+
+# Manage environment variables (forced prefix)
+fenv
+
+# Package management
+pkg  # or fpkg (Ctrl+U uninstall)
+```
+
+## 🎯 Keyboard Shortcuts
+
+Many commands support additional keyboard shortcuts:
+
+- **Git Stash**: `Ctrl+D` delete stash
+- **System Services**: `Ctrl+R` restart, `Ctrl+S` stop
+- **Docker**: `Ctrl+S` start, `Ctrl+P` stop, `Ctrl+R` restart
+- **Package Management**: `Ctrl+U` uninstall package
+
+## 🔧 Customization
+
+The plugin uses the `register_fzf_alias` function to register commands. You can customize commands or add new features by modifying `fzf-enhance.plugin.zsh`.
+
+## 📄 License
 
 MIT License
