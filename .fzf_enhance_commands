@@ -17,15 +17,17 @@ fgfetch|Selective fetch from remote branches
 fgpull|Select branch for pull operations
 fglog|Interactive file git history viewer
 fgblame|Select file for blame information
-ff|Find and open files
-fcd|Fuzzy find and enter subdirectories
-fcode|Search in code files (supports multiple programming languages)
-frecent|Find recently accessed files
-fsize|Filter and find files by size
-fext|Filter by file extensions
+ff|Find and open files (optimized with depth limit and exclusions)
+fcd|Fuzzy find and enter subdirectories (optimized)
+ffdeep|Deep file search (no depth limit)
+fcddeep|Deep directory search (no depth limit)
+fcode|Search in code files (optimized)
+frecent|Find recently accessed files (optimized)
+fsize|Filter and find files by size (optimized)
+fext|Filter by file extensions (optimized)
 fmkdir|Create directory and enter
-fcp|Interactive file copy to directory
-fmv|Interactive file move
+fcp|Interactive file copy to directory (optimized)
+fmv|Interactive file move (optimized)
 fkill|Interactive process termination
 fport|Find and manage processes using specific ports
 ftop|Interactive system resource monitoring (sorted by CPU)
@@ -47,4 +49,4 @@ fimg|Image file management and viewing
 fvideo|Video file management
 flog|Interactive system log file viewer
 flist|List all registered fzf-enhance commands
-fupdate|Update fzf-enhance plugin from git repository
+fupdate|Update fzf-enhance plugin from git repository (use 'fupdate [tag]' for specific version)

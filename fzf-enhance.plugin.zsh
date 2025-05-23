@@ -1,6 +1,29 @@
 # === Plugin: fzf-enhance ===
 # Smart alias registration with conflict avoidance
 
+# === 🎯 Configuration Variables ===
+# Set these in your .zshrc before loading the plugin to customize behavior
+
+# Maximum search depth for file operations (default: 3 for files, 2 for directories)
+FZF_ENHANCE_FILE_DEPTH=${FZF_ENHANCE_FILE_DEPTH:-3}
+FZF_ENHANCE_DIR_DEPTH=${FZF_ENHANCE_DIR_DEPTH:-2}
+
+# Maximum number of results to process (helps with performance)
+FZF_ENHANCE_FILE_LIMIT=${FZF_ENHANCE_FILE_LIMIT:-1000}
+FZF_ENHANCE_DIR_LIMIT=${FZF_ENHANCE_DIR_LIMIT:-500}
+
+# Directories to exclude from search (space-separated list)
+FZF_ENHANCE_EXCLUDE_DIRS=${FZF_ENHANCE_EXCLUDE_DIRS:-"node_modules .git target build dist __pycache__ .venv venv .next .nuxt .cache .tmp vendor"}
+
+# Build exclude parameters for fd command
+_build_exclude_params() {
+  local exclude_params=""
+  for dir in $FZF_ENHANCE_EXCLUDE_DIRS; do
+    exclude_params="$exclude_params --exclude $dir"
+  done
+  echo "$exclude_params"
+}
+
 # Store plugin directory at load time for reliable updates
 # Compatible with both zsh and bash
 if [[ -n "$ZSH_VERSION" ]]; then
@@ -164,23 +187,30 @@ else
 fi
 
 # === 🟩 File navigation ===
-register_fzf_alias f    'fzf --preview "bat --style=numbers --color=always {}" --bind "enter:execute(nvim {})+abort"' false "Find and open files"
+register_fzf_alias f    "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_FILE_LIMIT | fzf --preview 'bat --style=numbers --color=always {}' --bind 'enter:execute(nvim {})+abort'" false "Find and open files (optimized with depth limit and exclusions)"
 
 if check_command fd; then
-  register_fzf_alias cd   'fd --type d | fzf --prompt="CD into dir > " --bind "enter:execute(cd {})+abort"' true "Fuzzy find and enter subdirectories"
+  register_fzf_alias cd   "fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_DIR_LIMIT | fzf --prompt='CD into dir > ' --bind 'enter:execute(cd {})+abort'" true "Fuzzy find and enter subdirectories (optimized)"
   
-  register_fzf_alias code 'fd --type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.c" -o -name "*.cpp" -o -name "*.h" \) | fzf --preview "bat --style=numbers --color=always {}" --prompt="Search in code > " --bind "enter:execute(nvim {})+abort"' false "Search in code files (supports multiple programming languages)"
-  register_fzf_alias recent 'fd --type f --print0 | xargs -0 ls -lt | head -50 | awk "{print \$NF}" | fzf --preview "bat --style=numbers --color=always {}" --prompt="Recent files > " --bind "enter:execute(nvim {})+abort"' false "Find recently accessed files"
-  register_fzf_alias size 'fd --type f | xargs ls -lah | sort -k5 -h | fzf --preview "bat --style=numbers --color=always {9}" --prompt="Files by size > " --bind "enter:execute(nvim {9})+abort"' false "Filter and find files by size"
-  register_fzf_alias ext 'fd --type f | grep -E "\.[^.]+$" | sed "s/.*\.//" | sort | uniq -c | sort -nr | fzf --prompt="Select extension > " | awk "{print \$2}" | xargs -I {} fd --type f --extension {}' false "Filter by file extensions"
+  # Deep search alternatives for when you need full search
+  register_fzf_alias fdeep "fd --type f \$(_build_exclude_params) | fzf --preview 'bat --style=numbers --color=always {}' --bind 'enter:execute(nvim {})+abort'" false "Deep file search (no depth limit)"
+  register_fzf_alias cddeep "fd --type d \$(_build_exclude_params) | fzf --prompt='CD into dir > ' --bind 'enter:execute(cd {})+abort'" false "Deep directory search (no depth limit)"
+  
+  register_fzf_alias code "fd --type f --max-depth $((FZF_ENHANCE_FILE_DEPTH + 1)) \$(_build_exclude_params) \\( -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.go' -o -name '*.rs' -o -name '*.java' -o -name '*.c' -o -name '*.cpp' -o -name '*.h' \\) | head -$((FZF_ENHANCE_FILE_LIMIT * 80 / 100)) | fzf --preview 'bat --style=numbers --color=always {}' --prompt='Search in code > ' --bind 'enter:execute(nvim {})+abort'" false "Search in code files (optimized)"
+  
+  register_fzf_alias recent "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) --print0 | xargs -0 ls -lt | head -50 | awk '{print \$NF}' | fzf --preview 'bat --style=numbers --color=always {}' --prompt='Recent files > ' --bind 'enter:execute(nvim {})+abort'" false "Find recently accessed files (optimized)"
+  
+  register_fzf_alias size "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | xargs ls -lah | sort -k5 -h | fzf --preview 'bat --style=numbers --color=always {9}' --prompt='Files by size > ' --bind 'enter:execute(nvim {9})+abort'" false "Filter and find files by size (optimized)"
+  
+  register_fzf_alias ext "fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$FZF_ENHANCE_FILE_LIMIT | grep -E '\\.[^.]+\$' | sed 's/.*\\.//' | sort | uniq -c | sort -nr | fzf --prompt='Select extension > ' | awk '{print \$2}' | xargs -I {} fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH --extension {} \$(_build_exclude_params)" false "Filter by file extensions (optimized)"
   
   register_fzf_alias mkdir 'echo -n "New directory name: " && read dirname && mkdir -p "$dirname" && cd "$dirname"' true "Create directory and enter"
   
-  # File copy function
-  register_fzf_alias cp 'file=$(fd --type f | fzf --prompt="Copy file > ") && [[ -n "$file" ]] && dir=$(fd --type d | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && cp "$file" "$dir" && echo "Copied $file to $dir"' true "Interactive file copy to directory"
+  # Optimized file copy function
+  register_fzf_alias cp "file=\$(fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | fzf --prompt='Copy file > ') && [[ -n \"\$file\" ]] && dir=\$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_DIR_LIMIT / 2)) | fzf --prompt='To directory > ') && [[ -n \"\$dir\" ]] && cp \"\$file\" \"\$dir\" && echo \"Copied \$file to \$dir\"" true "Interactive file copy to directory (optimized)"
   
-  # File move function  
-  register_fzf_alias mv 'file=$(fd --type f | fzf --prompt="Move file > ") && [[ -n "$file" ]] && dir=$(fd --type d | fzf --prompt="To directory > ") && [[ -n "$dir" ]] && mv "$file" "$dir" && echo "Moved $file to $dir"' true "Interactive file move"
+  # Optimized file move function  
+  register_fzf_alias mv "file=\$(fd --type f --max-depth $FZF_ENHANCE_FILE_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_FILE_LIMIT / 2)) | fzf --prompt='Move file > ') && [[ -n \"\$file\" ]] && dir=\$(fd --type d --max-depth $FZF_ENHANCE_DIR_DEPTH \$(_build_exclude_params) | head -$((FZF_ENHANCE_DIR_LIMIT / 2)) | fzf --prompt='To directory > ') && [[ -n \"\$dir\" ]] && mv \"\$file\" \"\$dir\" && echo \"Moved \$file to \$dir\"" true "Interactive file move (optimized)"
 else
   echo "⚠️ fzf-enhance: fd not found. Enhanced file navigation disabled."
 fi
@@ -267,8 +297,94 @@ register_fzf_alias log 'find /var/log -name "*.log" 2>/dev/null | fzf --prompt="
 register_fzf_alias list 'list_fzf_commands' false "List all registered fzf-enhance commands"
 
 # === 🔄 Plugin management ===
-register_fzf_alias update 'echo "🔄 Updating fzf-enhance plugin..." && cd "$FZF_ENHANCE_PLUGIN_DIR" && echo "📁 Plugin directory: $FZF_ENHANCE_PLUGIN_DIR" && git pull && echo "✅ Plugin updated successfully! Please restart your shell or run: source ~/.zshrc"' false "Update fzf-enhance plugin from git repository"
+# Function to update the plugin
+_fzf_enhance_update() {
+  local tag="$1"
+  
+  echo "🔄 Updating fzf-enhance plugin..."
+  echo "📁 Plugin directory: $FZF_ENHANCE_PLUGIN_DIR"
+  
+  cd "$FZF_ENHANCE_PLUGIN_DIR" || {
+    echo "❌ Failed to change to plugin directory: $FZF_ENHANCE_PLUGIN_DIR"
+    return 1
+  }
+  
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "❌ Plugin directory is not a git repository"
+    return 1
+  fi
+  
+  if [[ -n "$tag" ]]; then
+    echo "🏷️  Checking out tag: $tag"
+    
+    # Fetch all tags from remote
+    echo "📡 Fetching tags..."
+    if ! git fetch --tags; then
+      echo "❌ Failed to fetch tags"
+      return 1
+    fi
+    
+    # Check if tag exists
+    if ! git tag -l | grep -q "^$tag$"; then
+      echo "❌ Tag '$tag' not found. Available tags:"
+      git tag -l | head -10
+      if [[ $(git tag -l | wc -l) -gt 10 ]]; then
+        echo "... and $(($(git tag -l | wc -l) - 10)) more"
+      fi
+      return 1
+    fi
+    
+    # Checkout the specified tag
+    if git checkout "$tag"; then
+      echo "✅ Successfully checked out tag: $tag"
+    else
+      echo "❌ Failed to checkout tag: $tag"
+      return 1
+    fi
+  else
+    echo "🔄 Pulling latest changes from master/main..."
+    
+    # Try to determine the default branch
+    local default_branch
+    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+    
+    if [[ -z "$default_branch" ]]; then
+      # Fallback: try common branch names
+      if git show-ref --verify --quiet refs/remotes/origin/main; then
+        default_branch="main"
+      elif git show-ref --verify --quiet refs/remotes/origin/master; then
+        default_branch="master"
+      else
+        default_branch="master"  # Final fallback
+      fi
+    fi
+    
+    echo "📡 Switching to $default_branch and pulling..."
+    
+    # Switch to default branch and pull
+    if git checkout "$default_branch" && git pull origin "$default_branch"; then
+      echo "✅ Successfully updated to latest $default_branch"
+    else
+      echo "❌ Failed to update. Trying simple git pull..."
+      if git pull; then
+        echo "✅ Successfully updated using git pull"
+      else
+        echo "❌ Failed to update plugin"
+        return 1
+      fi
+    fi
+  fi
+  
+  echo "✅ Plugin updated successfully!"
+  echo "💡 Please restart your shell or run: source ~/.zshrc"
+  echo ""
+  echo "📋 Usage:"
+  echo "  fupdate          - Update to latest master/main"
+  echo "  fupdate v1.2.3   - Update to specific tag"
+}
 
-echo "✅ fzf-enhance: All enhanced features loaded successfully!"
+register_fzf_alias update '_fzf_enhance_update' false "Update fzf-enhance plugin from git repository (use 'fupdate [tag]' for specific version)"
+
 echo "💡 Use 'flist' (or 'list' if override enabled) to see all available commands"
 

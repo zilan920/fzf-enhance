@@ -125,6 +125,13 @@
 
 - `list` / `flist`: Interactive list of all registered commands with descriptions
 
+**Plugin Updates**
+
+- `update` / `fupdate`: Update plugin from git repository
+  - `fupdate` - Update to latest master/main branch
+  - `fupdate v1.2.3` - Update to specific tag version
+  - `fupdate latest` - Update to latest master/main branch (same as no parameter)
+
 ## 📦 Dependencies
 
 Install the following dependencies for the best experience:
@@ -328,6 +335,20 @@ list  # or flist
 
 # Browse commands interactively with descriptions
 # Press Enter to copy command name to clipboard
+
+# Update plugin to latest version
+update  # or fupdate
+
+# Update to specific tag/version
+fupdate v1.2.3
+
+# Update examples
+fupdate              # Update to latest master/main
+fupdate v2.1.0       # Update to version 2.1.0
+fupdate v1.5.2       # Update to version 1.5.2
+
+# If tag update fails, you can check available tags:
+# git tag -l
 ```
 
 ## 🎯 Keyboard Shortcuts
@@ -339,10 +360,52 @@ Many commands support additional keyboard shortcuts:
 - **Docker**: `Ctrl+S` start, `Ctrl+P` stop, `Ctrl+R` restart
 - **Package Management**: `Ctrl+U` uninstall package
 
+## ⚡ Performance Optimizations
+
+The plugin has been optimized for performance, especially in large projects with many files:
+
+### Default Performance Settings
+
+- **File search depth**: Limited to 3 levels deep
+- **Directory search depth**: Limited to 2 levels deep
+- **Results limit**: 1000 files / 500 directories maximum
+- **Excluded directories**: `node_modules`, `.git`, `target`, `build`, `dist`, `__pycache__`, `.venv`, `venv`, `.next`, `.nuxt`, `.cache`, `.tmp`, `vendor`
+
+### Quick vs Deep Search Commands
+
+**Fast Commands (Limited Depth)**:
+
+- `ff`, `fcd`, `fcp`, `fmv` - Use depth limits and exclusions for quick results
+
+**Deep Search Commands (Full Search)**:
+
+- `fdeep` - Deep file search (no depth limit, slower)
+- `cddeep` - Deep directory search (no depth limit, slower)
+
+### Customizing Performance Settings
+
+Add these environment variables to your `~/.zshrc` **BEFORE** loading the plugin:
+
+```zsh
+# Customize search depth
+export FZF_ENHANCE_FILE_DEPTH=5        # Default: 3
+export FZF_ENHANCE_DIR_DEPTH=3         # Default: 2
+
+# Customize result limits
+export FZF_ENHANCE_FILE_LIMIT=2000     # Default: 1000
+export FZF_ENHANCE_DIR_LIMIT=1000      # Default: 500
+
+# Customize excluded directories (space-separated)
+export FZF_ENHANCE_EXCLUDE_DIRS="node_modules .git build custom_dir"
+```
+
+### Performance Tips
+
+1. **For large projects**: Use the default fast commands (`ff`, `fcd`)
+2. **When you need everything**: Use deep search commands (`fdeep`, `cddeep`)
+3. **Customize exclusions**: Add project-specific large directories to `FZF_ENHANCE_EXCLUDE_DIRS`
+4. **Adjust limits**: Increase limits if you need more results, decrease for faster performance
+
 ## 🔧 Customization
 
-The plugin uses the `register_fzf_alias` function to register commands. You can customize commands or add new features by modifying `fzf-enhance.plugin.zsh`.
-
-## 📄 License
-
-MIT License
+The plugin uses the `
