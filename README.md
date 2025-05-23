@@ -41,7 +41,7 @@
 **Basic Operations**
 
 - `f` / `ff`: Find and open files
-- `cd` / `fcd`: Fuzzy find and enter subdirectories
+- `fcd`: Fuzzy find and enter subdirectories
 
 **Advanced Search**
 
@@ -52,27 +52,27 @@
 
 **Directory Operations**
 
-- `mkdir` / `fmkdir`: Create directory and enter
-- `cp` / `fcp`: Interactive file copy to directory
-- `mv` / `fmv`: Interactive file move
+- `fmkdir`: Create directory and enter
+- `fcp`: Interactive file copy to directory
+- `fmv`: Interactive file move
 
 ### 🟥 System Tools
 
 **Process Management**
 
-- `kill` / `fkill`: Interactive process termination
+- `fkill`: Interactive process termination
 - `port` / `fport`: Find and manage processes using specific ports
-- `top` / `ftop`: Interactive system resource monitoring (sorted by CPU)
+- `ftop`: Interactive system resource monitoring (sorted by CPU)
 
 **Network Tools**
 
-- `ping` / `fping`: Interactive ping testing
+- `fping`: Interactive ping testing
 - `ss` / `fss`: SSH connection management (based on ~/.ssh/config)
-- `host` / `fhost`: Edit hosts file entries
+- `fhost`: Edit hosts file entries
 
 **Service Management**
 
-- `service` / `fservice`: Manage system services (supports systemctl, Ctrl+R restart, Ctrl+S stop)
+- `fservice`: Manage system services (supports systemctl, Ctrl+R restart, Ctrl+S stop)
 
 ### 🟨 General Utilities
 
@@ -84,7 +84,7 @@
 
 **Environment Variables**
 
-- `env` / `fenv`: Interactive environment variable viewing and copying
+- `fenv`: Interactive environment variable viewing and copying
 - `path` / `fpath`: Manage PATH variable entries
 
 **Configuration Files**
@@ -95,15 +95,15 @@
 **Package Management**
 
 - `pkg` / `fpkg`: Interactive package management (supports brew, apt, Ctrl+U uninstall)
-- `docker` / `fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
-- `node` / `fnode`: Node.js global package management
+- `fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
+- `fnode`: Node.js global package management
 
 ### 🟪 Development Tools
 
 **Code Quality**
 
 - `lint` / `flint`: Interactive code linting tools (supports Python, JavaScript, TypeScript)
-- `test` / `ftest`: Select and run test files
+- `ftest`: Select and run test files
 - `build` / `fbuild`: Interactive project building (supports npm, Make)
 
 ### 🟧 Media and Documents

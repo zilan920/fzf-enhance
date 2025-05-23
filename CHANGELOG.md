@@ -37,34 +37,34 @@
 - `recent/frecent`: Recently accessed files
 - `size/fsize`: Find by file size
 - `ext/fext`: Filter by extension
-- `mkdir/fmkdir`: Create directory and enter
-- `cp/fcp`: Interactive file copy
-- `mv/fmv`: Interactive file move
+- `fmkdir`: Create directory and enter
+- `fcp`: Interactive file copy
+- `fmv`: Interactive file move
 
 #### System Tools Enhancement (6 new commands)
 
 - `port/fport`: Port usage process management
-- `top/ftop`: System resource monitoring (sorted by CPU)
-- `ping/fping`: Interactive ping testing
+- `ftop`: System resource monitoring (sorted by CPU)
+- `fping`: Interactive ping testing
 - `ss/fss`: SSH connection management
-- `host/fhost`: Edit hosts file
-- `service/fservice`: System service management (Ctrl+R restart, Ctrl+S stop)
+- `fhost`: Edit hosts file
+- `fservice`: System service management (Ctrl+R restart, Ctrl+S stop)
 
 #### General Utilities Enhancement (8 new commands)
 
-- `env/fenv`: Environment variable viewing and copying
+- `fenv`: Environment variable viewing and copying
 - `path/fpath`: PATH management
 - `config/fconfig`: Quick configuration file editing
 - `dotfile/fdotfile`: Dotfiles management
 - `pkg/fpkg`: Package management (Ctrl+U uninstall)
-- `docker/fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
-- `node/fnode`: Node.js package management
+- `fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
+- `fnode`: Node.js package management
 - Retained: `zjump/fzjump`, `dict/fdict`
 
 #### Development Tools (3 new commands)
 
 - `lint/flint`: Code linting tools
-- `test/ftest`: Test file execution
+- `ftest`: Test file execution
 - `build/fbuild`: Project building
 
 #### Media & Documents (5 new commands)

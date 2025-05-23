@@ -41,7 +41,7 @@
 **基础功能**
 
 - `f` / `ff`: 查找并打开文件
-- `cd` / `fcd`: 模糊查找并进入子目录
+- `fcd`: 模糊查找并进入子目录
 
 **高级搜索**
 
@@ -52,27 +52,27 @@
 
 **目录操作**
 
-- `mkdir` / `fmkdir`: 创建目录并进入
-- `cp` / `fcp`: 交互式复制文件到目录
-- `mv` / `fmv`: 交互式移动文件
+- `fmkdir`: 创建目录并进入
+- `fcp`: 交互式复制文件到目录
+- `fmv`: 交互式移动文件
 
 ### 🟥 系统工具
 
 **进程管理**
 
-- `kill` / `fkill`: 交互式终止进程
+- `fkill`: 交互式终止进程
 - `port` / `fport`: 查找并管理占用特定端口的进程
-- `top` / `ftop`: 交互式查看系统资源使用情况（按 CPU 排序）
+- `ftop`: 交互式查看系统资源使用情况（按 CPU 排序）
 
 **网络工具**
 
-- `ping` / `fping`: 交互式 ping 测试
+- `fping`: 交互式 ping 测试
 - `ss` / `fss`: SSH 连接管理（基于~/.ssh/config）
-- `host` / `fhost`: 编辑 hosts 文件条目
+- `fhost`: 编辑 hosts 文件条目
 
 **服务管理**
 
-- `service` / `fservice`: 管理系统服务（支持 systemctl，Ctrl+R 重启，Ctrl+S 停止）
+- `fservice`: 管理系统服务（支持 systemctl，Ctrl+R 重启，Ctrl+S 停止）
 
 ### 🟨 通用实用工具
 
@@ -84,7 +84,7 @@
 
 **环境变量**
 
-- `env` / `fenv`: 交互式查看和复制环境变量
+- `fenv`: 交互式查看和复制环境变量
 - `path` / `fpath`: 管理 PATH 变量中的路径
 
 **配置文件**
@@ -95,15 +95,15 @@
 **包管理**
 
 - `pkg` / `fpkg`: 交互式包管理（支持 brew、apt，Ctrl+U 卸载）
-- `docker` / `fdocker`: Docker 容器管理（Ctrl+S 启动，Ctrl+P 停止，Ctrl+R 重启）
-- `node` / `fnode`: Node.js 全局包管理
+- `fdocker`: Docker 容器管理（Ctrl+S 启动，Ctrl+P 停止，Ctrl+R 重启）
+- `fnode`: Node.js 全局包管理
 
 ### 🟪 开发工具
 
 **代码质量**
 
 - `lint` / `flint`: 交互式运行代码检查工具（支持 Python、JavaScript、TypeScript）
-- `test` / `ftest`: 选择并运行测试文件
+- `ftest`: 选择并运行测试文件
 - `build` / `fbuild`: 交互式构建项目（支持 npm、Make）
 
 ### 🟧 媒体和文档

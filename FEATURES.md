@@ -45,7 +45,7 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 ### Basic Navigation
 
 - `ff` / `fff`: Find and open files
-- `fcd` / `ffcd`: Fuzzy find and enter subdirectories
+- `fcd`: Fuzzy find and enter subdirectories
 
 ### Advanced Search
 
@@ -56,9 +56,9 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 
 ### Directory Operations
 
-- `fmkdir` / `ffmkdir`: Create directory and enter
-- `fcp` / `ffcp`: Interactive file copy to directory
-- `fmv` / `ffmv`: Interactive file move
+- `fmkdir`: Create directory and enter
+- `fcp`: Interactive file copy to directory
+- `fmv`: Interactive file move
 
 ---
 
@@ -68,17 +68,17 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 
 - `fkill`: Interactive process termination
 - `fport` / `ffport`: Find and manage processes using specific ports
-- `ftop` / `fftop`: Interactive system resource monitoring (sorted by CPU)
+- `ftop`: Interactive system resource monitoring (sorted by CPU)
 
 ### Network Tools
 
-- `fping` / `ffping`: Interactive ping testing
+- `fping`: Interactive ping testing
 - `fss` / `ffss`: SSH connection management (based on ~/.ssh/config)
-- `fhost` / `ffhost`: Edit hosts file entries
+- `fhost`: Edit hosts file entries
 
 ### Service Management
 
-- `fservice` / `ffservice`: Manage system services (Ctrl+R restart, Ctrl+S stop)
+- `fservice`: Manage system services (Ctrl+R restart, Ctrl+S stop)
 
 ---
 
@@ -92,7 +92,7 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 
 ### Environment Management
 
-- `fenv` / `ffenv`: Interactive environment variable viewing and copying
+- `fenv`: Interactive environment variable viewing and copying
 - `fpath` / `ffpath`: Manage PATH variable entries
 
 ### Configuration Management
@@ -103,8 +103,8 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 ### Package Management
 
 - `fpkg` / `ffpkg`: Interactive package management (Ctrl+U uninstall)
-- `fdocker` / `ffdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
-- `fnode` / `ffnode`: Node.js global package management
+- `fdocker`: Docker container management (Ctrl+S start, Ctrl+P stop, Ctrl+R restart)
+- `fnode`: Node.js global package management
 
 ---
 
@@ -113,7 +113,7 @@ This plugin provides **44 enhanced commands** for command line users, covering 6
 ### Code Quality
 
 - `flint` / `fflint`: Interactive code linting tools (supports Python, JavaScript, TypeScript)
-- `ftest` / `fftest`: Select and run test files
+- `ftest`: Select and run test files
 - `fbuild` / `ffbuild`: Interactive project building (supports npm, Make)
 
 ---
